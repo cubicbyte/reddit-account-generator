@@ -28,8 +28,8 @@ You need to have Firefox installed on your machine for this script to work. Will
 1. Clone this repository to your local machine:
 
 ```shell
-git clone https://github.com/cubicbyte/reddit-account-maker.git
-cd reddit-account-maker
+git clone https://github.com/cubicbyte/reddit-account-generator.git
+cd reddit-account-generator
 ```
 
 2. Install the required dependencies:
