@@ -1,0 +1,4 @@
+# Proxies without protocol in next format:
+# IP:PORT
+# 127.0.0.1:1080
+# localhost:4145
