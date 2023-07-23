@@ -7,6 +7,7 @@ A python script on selenium to automatically create Reddit accounts.
 ## Table of Contents
 
 - [Features](#features)
+- [Quick info](#quick-info)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Requirements](#requirements)
@@ -17,6 +18,10 @@ A python script on selenium to automatically create Reddit accounts.
 - **Automatic captcha bypass**: The script automatically solves captchas during the account creation process.
 - **Proxy Support**: Since reddit allows you to create 1 account per IP every 10 minutes, this is very important.
 - **Resilience**: The script is able to handle most errors that may occur during the account creation process.
+
+## Quick info
+
+You need to have Firefox installed on your machine for this script to work. Will be fixed in the future.
 
 ## Installation
 
@@ -34,6 +39,9 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+> :warning: You need to have Firefox installed on your machine for this script to work.
+> Will be fixed in the future.
 
 ### Configuration
 
