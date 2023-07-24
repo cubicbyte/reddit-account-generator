@@ -21,8 +21,6 @@ A python script on selenium to automatically create Reddit accounts.
 
 ## Quick info
 
-You need to have Firefox installed on your machine for this script to work. Will be fixed in the future.
-
 You still need to activate the accounts via email. But it doesn't take much time.
 
 #### TODO:
@@ -48,9 +46,6 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-
-> :warning: You need to have Firefox installed on your machine for this script to work.
-> Will be fixed in the future.
 
 ### Configuration
 
