@@ -6,6 +6,10 @@ from exceptions import *
 from maker import make_account
 from protector import protect_account
 
+if BUILTIN_DRIVER:
+    # Download firefox binary (very lightweight, 16mb)
+    import webdriverdownloader
+    webdriverdownloader.GeckoDriverDownloader().download_and_install()
 
 def save_account(email: str, username: str, password: str):
     """Save account credentials to a file."""

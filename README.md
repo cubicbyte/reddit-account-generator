@@ -26,8 +26,8 @@ You need to have Firefox installed on your machine for this script to work. Will
 You still need to activate the accounts via email. But it doesn't take much time.
 
 #### TODO:
+- [x] Add automatic browser driver download
 - [ ] Add tor browser support for easier proxy management
-- [ ] Add support for other browsers
 - [ ] Handle error when sub is not available
 - [ ] Automatic email verification
 - [ ] Make this a python package and document it
@@ -73,6 +73,7 @@ python create_accounts.py
 - [selenium](https://pypi.org/project/selenium/)
 - [selenium-recaptcha-solver](https://pypi.org/project/selenium-recaptcha-solver/)
 - [random-username](https://pypi.org/project/random-username/)
+- [webdriverdownloader](https://pypi.org/project/webdriverdownloader/)
 
 ## Contributing
 
