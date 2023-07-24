@@ -2,13 +2,13 @@ import time
 import random
 import logging
 
-from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
+from utils import setup_firefox_driver
 from exceptions import IncorrectUsernameOrPasswordException
 
 # Random subreddits to subscribe to
@@ -31,7 +31,8 @@ subs = [
 ]
 
 
-def protect_account(username: str, password: str, hide_browser: bool = True):
+def protect_account(username: str, password: str,
+                    proxies: dict[str, str] | None = None, hide_browser: bool = True):
     """
     Prevent account blocking due to suspicion of being a bot.
 
@@ -41,12 +42,7 @@ def protect_account(username: str, password: str, hide_browser: bool = True):
     """
 
     logging.info('Protecting account with username %s', username)
-    options = webdriver.FirefoxOptions()
-
-    if hide_browser:
-        options.add_argument('--headless')
-
-    driver = webdriver.Firefox(options=options)
+    driver = setup_firefox_driver(proxies, hide_browser)
 
     if PAGE_LOAD_TIMEOUT_S is not None:
         driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_S)

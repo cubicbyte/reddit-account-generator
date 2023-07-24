@@ -34,7 +34,10 @@ for i in range(num_of_accounts):
                 print('No more proxies. Restarting from the beginning...')
                 proxy_i = 0
 
-            proxy = proxies[proxy_i]
+            proxy = {
+                'socks': proxies[proxy_i]
+            }
+
             print(f'Using proxy {proxies[proxy_i]}')
         else:
             proxy = None
@@ -42,7 +45,7 @@ for i in range(num_of_accounts):
 
         try:
             make_account(EMAIL, username, password,
-                         proxy=proxy, hide_browser=HIDE_BROWSER)
+                         proxies=proxy, hide_browser=HIDE_BROWSER)
             break
 
         except UsernameTakenException:
