@@ -29,6 +29,8 @@ You still need to activate the accounts via email. But it doesn't take much time
 - [ ] Add tor browser support for easier proxy management
 - [ ] Add support for other browsers
 - [ ] Handle error when sub is not available
+- [ ] Automatic email verification
+- [ ] Make this a python package and document it
 
 ## Installation
 
