@@ -3,6 +3,9 @@
 ## controller applications, as documented in control-spec.txt.
 ControlPort 9051
 
+# Proxy port
+HTTPTunnelPort 1881
+
 ## If you enable the controlport, be sure to enable one of these
 ## authentication methods, to prevent attackers from accessing it.
 ## This is actually "Passwort" (with error in word)

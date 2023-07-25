@@ -26,5 +26,4 @@ else:
 
 # Run tor
 torrc_file = os.path.join(root_dir, 'torrc')
-os.system(fr'{tor_executable} --defaults-torrc {torrc_file} --HTTPTunnelPort 1881')
-# TODO: Try to move --HTTPTunnelPort 1881 to torrc file
+os.system(fr'{tor_executable} --defaults-torrc {torrc_file}')
