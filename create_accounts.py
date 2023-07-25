@@ -19,11 +19,22 @@ def save_account(email: str, username: str, password: str):
 
 num_of_accounts = int(input('How many accounts do you want to make? '))
 
+# Check for tor and proxies
+print('Checking if tor is running...')
+is_tor_running = check_tor_running(TOR_IP, TOR_SOCKS5_PORT)
 proxies = load_proxies(PROXIES_FILE)
-proxy_i = 0
+is_proxies_loaded = len(proxies) != 0
 
-if len(proxies) == 0:
-    print('No proxies loaded. Using local IP address.')
+if not is_tor_running:
+    if not is_proxies_loaded:
+        print('No proxies loaded. Using local IP address.')
+        print('Tor is not running. It is recommended to run Tor to avoid IP cooldowns.\n\n' +
+             f'Please, run command "python run_tor.py" or add proxies to file {PROXIES_FILE}')
+    else:
+        print('Tor is not running.')
+        print(f'Loaded {len(proxies)} proxies.')
+        proxy_i = 0
+
 
 for i in range(num_of_accounts):
     username = generate_username()
