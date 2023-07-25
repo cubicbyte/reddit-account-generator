@@ -3,6 +3,7 @@ import string
 import secrets
 import random
 
+import requests
 from selenium import webdriver
 from random_username.generate import generate_username as _generate_username
 
@@ -39,6 +40,14 @@ def load_proxies(path: str) -> list[str]:
             proxies.append(line)
 
     return proxies
+
+
+def check_tor_running(ip: str, port: int) -> bool:
+    try:
+        r = requests.get('https://check.torproject.org/api/ip', proxies={'https': f'socks5h://{ip}:{port}'}, timeout=5)
+        return r.json()['IsTor'] is True
+    except Exception:
+        return False
 
 
 def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Firefox:
