@@ -25,7 +25,7 @@ You still need to activate the accounts via email. But it doesn't take much time
 
 #### TODO:
 - [x] Add automatic browser driver download
-- [ ] Add tor browser support for easier proxy management
+- [x] Add Tor support for easier proxy management
 - [ ] Handle error when sub is not available
 - [ ] Automatic email verification
 - [ ] Make this a python package and document it
@@ -46,6 +46,17 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+> **Note** **You need to use Tor (not browser) or proxy, because you can only create 1 account per IP.**
+
+#### Using Tor (recommended)
+Run this command and follow the instructions:
+```shell
+python run_tor.py
+```
+
+#### Using proxies
+Add your proxies to the proxies.txt file
 
 ### Configuration
 
