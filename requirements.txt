@@ -2,3 +2,4 @@ selenium==4.8.3
 selenium-recaptcha-solver==1.9.0
 random-username==1.0.2
 webdriverdownloader==1.1.0.3
+stem==1.8.2

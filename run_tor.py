@@ -7,7 +7,7 @@ Tor executable not found.
 
 Are you sure you put the Tor folder in the directory where this script is located?
 
-If you haven't downloaded Tor yet, please follow this link: https://www.torproject.org/download/tor/
+If you haven't downloaded Tor yet, please follow this link: https://www.torproject.org/download/tor/ (you need Tor Expert Bundle)
 
 No installation is required, just download Tor for your system and unzip the archive into the root reddit-account-generator folder
 '''
