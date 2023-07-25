@@ -23,4 +23,4 @@ class EMailCooldownException(Exception):
 class IncorrectUsernameOrPasswordException(Exception):
     pass
 
-ProxyException = (RecaptchaException, IPCooldownException, TimeoutException)
+NetworkException = (RecaptchaException, IPCooldownException, TimeoutException)

@@ -5,11 +5,13 @@ from utils import *
 from exceptions import *
 from maker import make_account
 from protector import protect_account
+from proxymanager import DefaultProxy, TorProxy, EmptyProxy
 
 if BUILTIN_DRIVER:
     # Download firefox binary (very lightweight, 16mb)
     import webdriverdownloader
     webdriverdownloader.GeckoDriverDownloader().download_and_install()
+
 
 def save_account(email: str, username: str, password: str):
     """Save account credentials to a file."""
@@ -19,57 +21,66 @@ def save_account(email: str, username: str, password: str):
 
 num_of_accounts = int(input('How many accounts do you want to make? '))
 
+
+# Check for tor and proxies
+print('Checking if tor is running...')
+is_tor_running = check_tor_running(TOR_IP, TOR_SOCKS5_PORT)
 proxies = load_proxies(PROXIES_FILE)
-proxy_i = 0
+is_proxies_loaded = len(proxies) != 0
 
-if len(proxies) == 0:
-    print('No proxies loaded. Using local IP address.')
+# Define proxy manager: Tor, Proxies file or local IP
+if is_tor_running:
+    print('Tor is running. Connecting to Tor...')
+    proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
+    print('Connected to Tor.')
 
+else:
+    print('Tor is not running.')
+
+    if is_proxies_loaded:
+        proxy = DefaultProxy(proxies)
+        print(f'Loaded {len(proxies)} proxies.')
+
+    else:
+        proxy = EmptyProxy()
+        print('No proxies loaded. Using local IP address.')
+        print('Tor is not running. It is recommended to run Tor to avoid IP cooldowns.\n\n' +
+             f'Please, run command "python run_tor.py" or add proxies to file {PROXIES_FILE}')
+
+
+# Create accounts
 for i in range(num_of_accounts):
     username = generate_username()
     password = generate_password()
+    proxy_ = proxy.get_next()
 
     print(f'Creating account with username {username} ({i+1}/{num_of_accounts})')
+    print(f'Using proxy: {proxy}')
 
     while True:
-        # If proxies are loaded, use them
-        if len(proxies) != 0:
-            if proxy_i >= len(proxies):
-                print('No more proxies. Restarting from the beginning...')
-                proxy_i = 0
-
-            proxy = {
-                'socks': proxies[proxy_i]
-            }
-
-            print(f'Using proxy {proxies[proxy_i]}')
-        else:
-            proxy = None
-            proxy_i = 0
-
         try:
             make_account(EMAIL, username, password,
-                         proxies=proxy, hide_browser=HIDE_BROWSER)
+                         proxies=proxy_, hide_browser=HIDE_BROWSER)
             break
 
         except UsernameTakenException:
             username = generate_username()
             print(f'Username taken. Trying {username}...')
 
-        except ProxyException as e:
-            if proxy is None and (isinstance(e, IPCooldownException) or
-                                  isinstance(e, EMailCooldownException)):
+        except NetworkException as e:
+            # If we are using local IP address, we can't bypass IP cooldown
+            if isinstance(proxy, EmptyProxy) and (
+                    isinstance(e, IPCooldownException) or
+                    isinstance(e, EMailCooldownException)):
                 print(e)
-                print(f'IP cooldown. Try again later or use proxies.')
+                print(f'IP cooldown. Try again later or use tor/proxies.')
                 exit(0)
-            print(f'Network failed with {e.__class__.__name__}. Trying again...')
-            proxy_i += 1
 
-        except NoSuchWindowException:
-            print('Browser window closed. Trying next proxy...')
-            proxy_i += 1
+            print(f'Network failed with {e.__class__.__name__}.')
+            proxy_ = proxy.get_next()
+            print(f'Using next proxy: {proxy}')
 
-        except (KeyboardInterrupt, SystemExit):
+        except (KeyboardInterrupt, SystemExit, NoSuchWindowException):
             print('Exiting...')
             exit(0)
 
@@ -96,4 +107,5 @@ for i in range(num_of_accounts):
     else:
         print('Account protection failed. Skipping...')
 
-    proxy_i += 1
+    proxy_ = proxy.get_next()
+    print(f'Using next proxy: {proxy}')
