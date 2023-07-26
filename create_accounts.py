@@ -41,6 +41,7 @@ if is_tor_running:
     print('Tor is running. Connecting to Tor...')
     proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
     print('Connected to Tor.')
+    print('You will probably see a lot of RecaptchaException, but it\'s ok.')
 
 else:
     print('Tor is not running.')
@@ -114,6 +115,3 @@ for i in range(num_of_accounts):
             print(f'An error occurred during account protection. Trying again... [{i+1}/{ACCOUNT_PROTECTION_RETRIES}]')
     else:
         print('Account protection failed. Skipping...')
-
-    proxy_ = proxy.get_next()
-    print(f'Using next proxy: {proxy}')

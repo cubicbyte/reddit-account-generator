@@ -60,7 +60,7 @@ Add your proxies to the proxies.txt file
 
 ### Configuration
 
-Open the `config.py` file and put your email. Other settings are optional.
+Open the `config.py` file and put your email to be used on your accounts. Other settings are optional.
 
 ### Command Line Usage
 
