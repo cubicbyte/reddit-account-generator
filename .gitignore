@@ -1,4 +1,9 @@
+# Generated files
 __pycache__/
-accounts.csv
 *.log
+accounts.csv
+
+# User files
 /tor*/
+.venv/
+venv/

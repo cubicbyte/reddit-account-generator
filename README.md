@@ -41,6 +41,8 @@ It is recommended to use proxies, because you can only create 1 account per IP i
 
 # Getting started
 
+> **Note** Python 3.7+ is required
+
 ## Script installation
 
 1. Clone this repository to your local machine:
@@ -151,7 +153,7 @@ protect_account(username, password)  # Proxy not required
 
 ## Requirements
 
-- Python 3.5+
+- Python 3.7+
 - [selenium](https://pypi.org/project/selenium/)
 - [selenium-recaptcha-solver](https://pypi.org/project/selenium-recaptcha-solver/)
 - [random-username](https://pypi.org/project/random-username/)
