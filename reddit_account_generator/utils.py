@@ -75,4 +75,4 @@ def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bo
             options.set_preference('network.proxy.socks_port', int(socks_port))
             options.set_preference('network.proxy.socks_remote_dns', False)
 
-    return webdriver.Firefox(options=options)
+    return webdriver.Firefox(options=options, service_log_path=os.devnull)
