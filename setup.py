@@ -1,8 +1,7 @@
+import re
 from pathlib import Path
 
 from setuptools import setup, find_packages
-
-from reddit_account_generator._version import __version__ as version
 
 
 def read(path: str) -> str:
@@ -23,9 +22,15 @@ def get_requirements():
     return requirements_list
 
 
+def get_version(ver_file: str) -> str:  # Credits to pyTelegramBotAPI setup.py
+    with open(ver_file, 'r', encoding='utf-8') as f:
+        return re.search(r"^__version__\s*=\s*'(.*)'.*$",
+                         f.read(), flags=re.MULTILINE).group(1)
+
+
 setup(
     name='reddit-account-generator',
-    version=version,
+    version=get_version('reddit_account_generator/_version.py'),
     description='Automatic reddit account generator on selenium.',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
