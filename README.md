@@ -30,6 +30,8 @@ A python script on selenium to automatically create Reddit accounts.
 
 You still need to activate the accounts via email. But it doesn't take much time.
 
+Firefox should be installed on your system for the script to work.
+
 It is recommended to use proxies, because you can only create 1 account per IP in 10 minutes. See file **proxies.txt** or run `python run_tor.py`
 
 ## TODO:
@@ -59,6 +61,8 @@ pip install -r requirements.txt
 ```
 
 ## Script usage
+
+> **Note** **Firefox should be installed on your system for the script to work**
 
 > **Note** **You need to use Tor (not browser) or proxy, because you can only create 1 account per IP in 10 minutes**
 
