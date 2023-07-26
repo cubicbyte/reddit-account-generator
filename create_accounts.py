@@ -1,4 +1,4 @@
-from selenium.common.exceptions import NoSuchWindowException
+from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
 from reddit_account_generator import maker, protector, create_account, protect_account
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
@@ -93,7 +93,7 @@ for i in range(num_of_accounts):
             print('Exiting...')
             exit(0)
 
-        except Exception as e:
+        except WebDriverException as e:
             print(e)
             print(f'An error occurred during account creation. Trying again...')
 
@@ -110,7 +110,7 @@ for i in range(num_of_accounts):
         except IncorrectUsernameOrPasswordException:
             print('Seems like the account was not created or was deleted. Skipping...')
             break
-        except Exception as e:
+        except WebDriverException as e:
             print(e)
             print(f'An error occurred during account protection. Trying again... [{i+1}/{ACCOUNT_PROTECTION_RETRIES}]')
     else:
