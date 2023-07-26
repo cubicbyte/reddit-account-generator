@@ -52,6 +52,25 @@ def check_tor_running(ip: str, port: int) -> bool:
         return False
 
 
+def setup_chrome_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Chrome:
+    options = webdriver.ChromeOptions()
+
+    if hide_browser:
+        options.add_argument('--headless')
+
+    # Set up proxies if available
+    if proxies is not None:
+        if 'http' in proxies:
+            options.add_argument(f'--proxy-server=http://{proxies["http"]}')
+        if 'https' in proxies:
+            options.add_argument(f'--proxy-server=https://{proxies["https"]}')
+        if 'socks' in proxies:
+            # Only SOCKS5 is supported
+            options.add_argument(f'--proxy-server=socks5://{proxies["socks"]}')
+
+    return webdriver.Chrome(options=options, service_log_path=os.devnull)
+
+
 def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Firefox:
     options = webdriver.FirefoxOptions()
 
