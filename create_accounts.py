@@ -1,16 +1,23 @@
-from selenium.common.exceptions import NoSuchWindowException
+from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
+from reddit_account_generator import maker, protector, create_account, protect_account, install_driver
+from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
+from reddit_account_generator.utils import *
+from reddit_account_generator.exceptions import *
 from config import *
-from utils import *
-from exceptions import *
-from maker import make_account
-from protector import protect_account
-from proxymanager import DefaultProxy, TorProxy, EmptyProxy
+
+
+# Set config variables
+maker.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
+maker.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
+maker.MICRO_DELAY_S = MICRO_DELAY_S
+protector.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
+protector.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
+protector.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
-    # Download firefox binary (very lightweight, 16mb)
-    import webdriverdownloader
-    webdriverdownloader.GeckoDriverDownloader().download_and_install()
+    # Install firefox driver binary
+    install_driver()
 
 
 def save_account(email: str, username: str, password: str):
@@ -33,6 +40,7 @@ if is_tor_running:
     print('Tor is running. Connecting to Tor...')
     proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
     print('Connected to Tor.')
+    print('You will probably see a lot of RecaptchaException, but it\'s ok.')
 
 else:
     print('Tor is not running.')
@@ -59,7 +67,7 @@ for i in range(num_of_accounts):
 
     while True:
         try:
-            make_account(EMAIL, username, password,
+            create_account(EMAIL, username, password,
                          proxies=proxy_, hide_browser=HIDE_BROWSER)
             break
 
@@ -84,7 +92,7 @@ for i in range(num_of_accounts):
             print('Exiting...')
             exit(0)
 
-        except Exception as e:
+        except WebDriverException as e:
             print(e)
             print(f'An error occurred during account creation. Trying again...')
 
@@ -101,11 +109,8 @@ for i in range(num_of_accounts):
         except IncorrectUsernameOrPasswordException:
             print('Seems like the account was not created or was deleted. Skipping...')
             break
-        except Exception as e:
+        except WebDriverException as e:
             print(e)
             print(f'An error occurred during account protection. Trying again... [{i+1}/{ACCOUNT_PROTECTION_RETRIES}]')
     else:
         print('Account protection failed. Skipping...')
-
-    proxy_ = proxy.get_next()
-    print(f'Using next proxy: {proxy}')

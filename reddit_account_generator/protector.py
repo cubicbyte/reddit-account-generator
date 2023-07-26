@@ -7,9 +7,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
-from utils import setup_firefox_driver
-from exceptions import IncorrectUsernameOrPasswordException
+from .utils import setup_firefox_driver, try_to_click
+from .exceptions import IncorrectUsernameOrPasswordException
+
+PAGE_LOAD_TIMEOUT_S = 60
+DRIVER_TIMEOUT_S = 60
+MICRO_DELAY_S = 1
 
 # Random subreddits to subscribe to
 subs = [
@@ -58,16 +61,15 @@ def protect_account(username: str, password: str,
         # Enter username and password
         username_input = driver.find_element(By.ID, 'loginUsername')
         password_input = driver.find_element(By.ID, 'loginPassword')
-        username_input.click()
+        try_to_click(username_input, delay=MICRO_DELAY_S)
         username_input.send_keys(username)
-        password_input.click()
+        try_to_click(password_input, delay=MICRO_DELAY_S)
         password_input.send_keys(password)
 
         # Submit login
-        time.sleep(MICRO_DELAY_S)
-        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[type="submit"]')))
         submit_btn = driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
-        submit_btn.click()
+        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(submit_btn))
+        try_to_click(submit_btn, delay=MICRO_DELAY_S)
 
         # Check if submitted
         time.sleep(MICRO_DELAY_S)
@@ -85,9 +87,9 @@ def protect_account(username: str, password: str,
         driver.get(f'https://www.reddit.com/r/{random.choice(subs)}/')
 
         # Subscribe
-        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.XPATH, '//button[text()="Join"]')))
         subscribe_btn = driver.find_element(By.XPATH, '//button[text()="Join"]')
-        subscribe_btn.click()
+        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(subscribe_btn))
+        try_to_click(subscribe_btn, delay=MICRO_DELAY_S)
 
         # Done!
 
