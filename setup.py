@@ -1,25 +1,10 @@
 import re
-from pathlib import Path
-
 from setuptools import setup, find_packages
 
 
 def read(path: str) -> str:
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
-
-
-def get_requirements():
-    """Build the requirements list for this project"""
-    requirements_list = []
-
-    with Path('requirements.txt').open() as reqs:
-        for install in reqs:
-            if install.startswith('#'):
-                continue
-            requirements_list.append(install.strip())
-
-    return requirements_list
 
 
 def get_version(ver_file: str) -> str:  # Credits to pyTelegramBotAPI setup.py
@@ -40,7 +25,13 @@ setup(
     packages = find_packages(),
     license='MIT',
     keywords='python reddit account-generator account-maker account-generation r-place rplace',
-    install_requires=get_requirements(),
+    install_requires=[
+        'selenium==4.8.3',
+        'selenium-recaptcha-solver==1.9.0',
+        'random-username==1.0.2',
+        'webdriverdownloader==1.1.0.3',
+        'stem==1.8.2',
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 3',
