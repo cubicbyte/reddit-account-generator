@@ -1,6 +1,6 @@
 from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
-from reddit_account_generator import maker, protector, create_account, protect_account
+from reddit_account_generator import maker, protector, create_account, protect_account, install_driver
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
 from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
@@ -16,9 +16,8 @@ protector.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
 protector.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
-    # Download firefox binary (very lightweight, 16mb)
-    import webdriverdownloader
-    webdriverdownloader.GeckoDriverDownloader().download_and_install()
+    # Install firefox driver binary
+    install_driver()
 
 
 def save_account(email: str, username: str, password: str):

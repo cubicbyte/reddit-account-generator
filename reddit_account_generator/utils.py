@@ -79,6 +79,7 @@ def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bo
 
     return webdriver.Firefox(options=options, service_log_path=os.devnull)
 
+
 def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int = 10) -> bool:
     """Try to click an element multiple times."""
     while max_tries > 0:
