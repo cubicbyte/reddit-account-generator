@@ -63,18 +63,17 @@ for i in range(num_of_accounts):
     proxy_ = proxy.get_next()
     retries = MAX_RETRIES
 
-    print(f'Creating account with username {username} ({i+1}/{num_of_accounts})')
+    print(f'Creating account ({i+1}/{num_of_accounts})')
     print(f'Using proxy: {proxy}')
 
     while True:
         try:
-            create_account(EMAIL, username, password,
+            username = create_account(EMAIL, password,
                          proxies=proxy_, hide_browser=HIDE_BROWSER)
             break
 
         except UsernameTakenException:
-            username = generate_username()
-            print(f'Username taken. Trying {username}...')
+            print(f'Username taken. Trying again.')
 
         except NetworkException as e:
             # If we are using local IP address, we can't bypass IP cooldown
