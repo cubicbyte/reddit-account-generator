@@ -7,13 +7,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium_recaptcha_solver import RecaptchaSolver
 
-from config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
-from utils import setup_firefox_driver
-from exceptions import *
+from .utils import setup_firefox_driver
+from .exceptions import *
+
+PAGE_LOAD_TIMEOUT_S = 60
+DRIVER_TIMEOUT_S = 60
+MICRO_DELAY_S = 1
 
 
-def make_account(email: str, username: str, password: str,
-                 proxies: dict[str, str] | None = None, hide_browser: bool = True):
+def create_account(email: str, username: str, password: str,
+                   proxies: dict[str, str] | None = None, hide_browser: bool = True):
     """Create a Reddit account."""
 
     logging.info('Creating account with username %s', username)

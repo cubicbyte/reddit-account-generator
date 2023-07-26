@@ -1,11 +1,19 @@
 from selenium.common.exceptions import NoSuchWindowException
 
+from reddit_account_generator import maker, protector, create_account, protect_account
+from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
+from reddit_account_generator.utils import *
+from reddit_account_generator.exceptions import *
 from config import *
-from utils import *
-from exceptions import *
-from maker import make_account
-from protector import protect_account
-from proxymanager import DefaultProxy, TorProxy, EmptyProxy
+
+
+# Set config variables
+maker.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
+maker.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
+maker.MICRO_DELAY_S = MICRO_DELAY_S
+protector.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
+protector.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
+protector.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
     # Download firefox binary (very lightweight, 16mb)
@@ -59,7 +67,7 @@ for i in range(num_of_accounts):
 
     while True:
         try:
-            make_account(EMAIL, username, password,
+            create_account(EMAIL, username, password,
                          proxies=proxy_, hide_browser=HIDE_BROWSER)
             break
 

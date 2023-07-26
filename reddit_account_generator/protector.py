@@ -7,9 +7,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
-from utils import setup_firefox_driver
-from exceptions import IncorrectUsernameOrPasswordException
+from .utils import setup_firefox_driver
+from .exceptions import IncorrectUsernameOrPasswordException
+
+PAGE_LOAD_TIMEOUT_S = 60
+DRIVER_TIMEOUT_S = 60
+MICRO_DELAY_S = 1
 
 # Random subreddits to subscribe to
 subs = [
