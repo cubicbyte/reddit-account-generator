@@ -6,15 +6,20 @@ A python script on selenium to automatically create Reddit accounts.
 
 ## Table of Contents
 
-- [Features](#features)
-- [Quick info](#quick-info)
-- [Script Installation](#script-installation)
-- [Script Usage](#command-line-usage)
-- [Package Installation](#package-installation)
-- [Package Usage](#package-usage)
+- [Introducing](#introducing)
+    - [Features](#features)
+    - [Quick info](#quick-info)
+    - [TODO](#todo)
+- [Getting started](#getting-started)
+    - [Script Installation](#script-installation)
+    - [Script Usage](#command-line-usage)
+    - [Package Installation](#package-installation)
+    - [Package Usage](#package-usage)
 - [Requirements](#requirements)
 - [Contributing](#contributing)
 - [License](#license)
+
+# Introducing
 
 ## Features
 - **Automatic captcha bypass**: The script automatically solves captchas during the account creation process.
@@ -25,14 +30,18 @@ A python script on selenium to automatically create Reddit accounts.
 
 You still need to activate the accounts via email. But it doesn't take much time.
 
-#### TODO:
+It is recommended to use proxies, because you can only create 1 account per IP in 10 minutes. See file **proxies.txt** or run `python run_tor.py`
+
+## TODO:
 - [x] Add automatic browser driver download
 - [x] Add Tor support for easier proxy management
 - [x] Make this a python package
 - [ ] Automatic email verification
 - [ ] Handle error when sub is not available
 
-## Script Installation
+# Getting started
+
+## Script installation
 
 1. Clone this repository to your local machine:
 
@@ -47,7 +56,7 @@ cd reddit-account-generator
 pip install -r requirements.txt
 ```
 
-## Script Usage
+## Script usage
 
 > **Note** **You need to use Tor (not browser) or proxy, because you can only create 1 account per IP in 10 minutes**
 
