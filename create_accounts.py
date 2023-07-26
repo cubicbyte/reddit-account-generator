@@ -61,6 +61,7 @@ for i in range(num_of_accounts):
     username = generate_username()
     password = generate_password()
     proxy_ = proxy.get_next()
+    retries = MAX_RETRIES
 
     print(f'Creating account with username {username} ({i+1}/{num_of_accounts})')
     print(f'Using proxy: {proxy}')
@@ -94,13 +95,17 @@ for i in range(num_of_accounts):
 
         except WebDriverException as e:
             print(e)
-            print(f'An error occurred during account creation. Trying again...')
+            retries -= 1
+            if retries <= 0:
+                print(f'An error occurred during account creation. Exiting...')
+                exit(1)
+            print(f'An error occurred during account creation. Trying again {retries} more times...')
 
     save_account(EMAIL, username, password)
     print('Account created! Protecting account...')
 
     # Try to protect account
-    for i in range(ACCOUNT_PROTECTION_RETRIES):
+    for i in range(MAX_RETRIES):
         try:
             protect_account(username, password, hide_browser=HIDE_BROWSER)
             print('Account protected!')
@@ -111,6 +116,6 @@ for i in range(num_of_accounts):
             break
         except WebDriverException as e:
             print(e)
-            print(f'An error occurred during account protection. Trying again... [{i+1}/{ACCOUNT_PROTECTION_RETRIES}]')
+            print(f'An error occurred during account protection. Trying again... [{i+1}/{MAX_RETRIES}]')
     else:
         print('Account protection failed. Skipping...')
