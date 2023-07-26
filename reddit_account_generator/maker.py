@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium_recaptcha_solver import RecaptchaSolver
 
-from .utils import setup_firefox_driver
+from .utils import setup_firefox_driver, try_to_click
 from .exceptions import *
 
 PAGE_LOAD_TIMEOUT_S = 60
@@ -35,10 +35,10 @@ def create_account(email: str, username: str, password: str,
 
         # Enter email and go to next page
         email_input = driver.find_element(By.ID, 'regEmail')
+        email_submit = driver.find_element(By.CSS_SELECTOR, 'button[data-step="email"]')
         email_input.click()
         email_input.send_keys(email)
-        time.sleep(MICRO_DELAY_S)
-        email_input.submit()
+        try_to_click(email_submit, delay=MICRO_DELAY_S)
 
         # Check for email error
         time.sleep(MICRO_DELAY_S)
@@ -57,18 +57,18 @@ def create_account(email: str, username: str, password: str,
 
         # Enter username
         username_input = driver.find_element(By.ID, 'regUsername')
-        username_input.click()
+        try_to_click(username_input, delay=MICRO_DELAY_S)
         username_input.send_keys(username)
 
         # Enter password
         password_input = driver.find_element(By.ID, 'regPassword')
-        password_input.click()
+        try_to_click(password_input, delay=MICRO_DELAY_S)
         password_input.send_keys(password)
 
         # Check for username and password errors
         username_err = driver.find_element(By.XPATH, '//div[@data-for="username"]')
         password_err = driver.find_element(By.XPATH, '//div[@data-for="password"]')
-        username_input.click()
+        try_to_click(username_input, delay=MICRO_DELAY_S)
         time.sleep(MICRO_DELAY_S)
 
         if username_err.text != '':
@@ -94,11 +94,9 @@ def create_account(email: str, username: str, password: str,
             solver.click_recaptcha_v2(iframe=recaptcha_iframe)
 
         # Submit registration
-        time.sleep(MICRO_DELAY_S)
-        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-step="username-and-password"]')))
         submit_btn = driver.find_element(By.CSS_SELECTOR, 'button[data-step="username-and-password"]')
-        time.sleep(MICRO_DELAY_S)
-        submit_btn.click()
+        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(submit_btn))
+        try_to_click(submit_btn, delay=MICRO_DELAY_S)
 
         # Check if submitted
         time.sleep(MICRO_DELAY_S)
