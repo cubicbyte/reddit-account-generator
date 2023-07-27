@@ -1,13 +1,13 @@
 import time
 import logging
 
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium_recaptcha_solver import RecaptchaSolver
 
-from .utils import setup_firefox_driver, try_to_click, generate_password
+from .utils import setup_firefox_driver, try_to_click, generate_password, generate_username
 from .exceptions import *
 
 PAGE_LOAD_TIMEOUT_S = 60
@@ -64,8 +64,14 @@ def create_account(email: str, username: str | None = None, password: str | None
 
         # Enter username
         _logger.debug('Entering username and password')
+        try:
+            # Get random username suggested by reddit
+            random_username = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
+        except NoSuchElementException:
+            # Sometimes reddit doesn't suggest any username
+            username = generate_username()
+
         username_input = driver.find_element(By.ID, 'regUsername')
-        random_username = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
         if username is not None:
             # Enter given username
             try_to_click(username_input, delay=MICRO_DELAY_S)
