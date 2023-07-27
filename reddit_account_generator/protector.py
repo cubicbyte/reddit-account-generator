@@ -93,7 +93,7 @@ def protect_account(username: str, password: str,
         driver.get(f'https://www.reddit.com/r/{sub}/')
 
         # Subscribe
-        _logger.debug('Subscribing to subreddit')
+        _logger.debug('Subscribing to subreddit r/%s', sub)
         subscribe_btn = driver.find_element(By.XPATH, '//button[text()="Join"]')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(subscribe_btn))
         try_to_click(subscribe_btn, delay=MICRO_DELAY_S)

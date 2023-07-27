@@ -99,13 +99,14 @@ def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bo
     return webdriver.Firefox(options=options, service_log_path=os.devnull)
 
 
-def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int = 10) -> bool:
+def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int = 20) -> bool:
     """Try to click an element multiple times."""
-    while max_tries > 0:
+    retries = 0
+    while retries < max_tries:
         try:
             element.click()
             return
-        except Exception as e:
-            max_tries -= 1
+        except:
+            retries += 1
             time.sleep(delay)
-    raise e
+    raise TimeoutException(f'Could not click element after {max_tries} tries.')
