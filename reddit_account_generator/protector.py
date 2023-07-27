@@ -32,6 +32,7 @@ subs = [
     'cursed_comments',
     'shitposting',
 ]
+_logger = logging.getLogger(__name__)
 
 
 def protect_account(username: str, password: str,
@@ -44,7 +45,7 @@ def protect_account(username: str, password: str,
     - For now, that's all
     """
 
-    logging.info('Protecting account with username %s', username)
+    logging.info('Protecting account with username {}', username)
     driver = setup_firefox_driver(proxies, hide_browser)
 
     if PAGE_LOAD_TIMEOUT_S is not None:
@@ -53,12 +54,14 @@ def protect_account(username: str, password: str,
     try:  # try/except to quit driver if error occurs
 
         # Open login website
+        _logger.debug('Opening login page')
         try:
             driver.get('https://www.reddit.com/login/')
         except WebDriverException:
             raise TimeoutException('Website takes too long to load. Probably a problem with the proxy.')
         
         # Enter username and password
+        _logger.debug('Entering username and password')
         username_input = driver.find_element(By.ID, 'loginUsername')
         password_input = driver.find_element(By.ID, 'loginPassword')
         try_to_click(username_input, delay=MICRO_DELAY_S)
@@ -67,6 +70,7 @@ def protect_account(username: str, password: str,
         password_input.send_keys(password)
 
         # Submit login
+        _logger.debug('Submitting login')
         submit_btn = driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(submit_btn))
         try_to_click(submit_btn, delay=MICRO_DELAY_S)
@@ -83,10 +87,13 @@ def protect_account(username: str, password: str,
         # Logged in!
 
         # Go to random subreddit
+        sub = random.choice(subs)
+        _logger.debug('Going to subreddit r/{}', sub)
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.url_matches('https://www.reddit.com*'))
-        driver.get(f'https://www.reddit.com/r/{random.choice(subs)}/')
+        driver.get(f'https://www.reddit.com/r/{sub}/')
 
         # Subscribe
+        _logger.debug('Subscribing to subreddit')
         subscribe_btn = driver.find_element(By.XPATH, '//button[text()="Join"]')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(subscribe_btn))
         try_to_click(subscribe_btn, delay=MICRO_DELAY_S)

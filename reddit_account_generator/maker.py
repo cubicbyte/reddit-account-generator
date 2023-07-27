@@ -14,12 +14,14 @@ PAGE_LOAD_TIMEOUT_S = 60
 DRIVER_TIMEOUT_S = 60
 MICRO_DELAY_S = 1
 
+_logger = logging.getLogger(__name__)
+
 
 def create_account(email: str, username: str | None = None, password: str | None = None,
                    proxies: dict[str, str] | None = None, hide_browser: bool = True) -> tuple[str, str]:
     """Create a Reddit account."""
 
-    logging.info('Creating account.')
+    _logger.info('Creating reddit account')
     driver = setup_firefox_driver(proxies, hide_browser)
 
     if PAGE_LOAD_TIMEOUT_S is not None:
@@ -31,12 +33,14 @@ def create_account(email: str, username: str | None = None, password: str | None
     try:  # try/except to quit driver if error occurs
 
         # Open website
+        _logger.debug('Opening registration page')
         try:
             driver.get('https://www.reddit.com/register/')
         except WebDriverException:
             raise TimeoutException('Website takes too long to load. Probably a problem with the proxy.')
 
         # Enter email and go to next page
+        _logger.debug('Entering email')
         email_input = driver.find_element(By.ID, 'regEmail')
         email_submit = driver.find_element(By.CSS_SELECTOR, 'button[data-step="email"]')
         email_input.click()
@@ -58,10 +62,12 @@ def create_account(email: str, username: str | None = None, password: str | None
         # Wait until page loads
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.ID, 'regUsername')))
 
+        # Enter username
+        _logger.debug('Entering username')
         username_input = driver.find_element(By.ID, 'regUsername')
         random_username = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
         if username is not None:
-            # Enter username
+            # Enter given username
             try_to_click(username_input, delay=MICRO_DELAY_S)
             username_input.send_keys(username)
         else:
@@ -70,6 +76,7 @@ def create_account(email: str, username: str | None = None, password: str | None
             username = random_username.text
 
         # Enter password
+        _logger.debug('Entering password')
         password_input = driver.find_element(By.ID, 'regPassword')
         try_to_click(password_input, delay=MICRO_DELAY_S)
         password_input.send_keys(password)
@@ -95,6 +102,7 @@ def create_account(email: str, username: str | None = None, password: str | None
             raise Exception(password_err.text)
         
         # Solve captcha
+        _logger.debug('Solving captcha')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.XPATH, '//iframe[@title="reCAPTCHA"]')))
         recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
 
@@ -103,6 +111,7 @@ def create_account(email: str, username: str | None = None, password: str | None
             solver.click_recaptcha_v2(iframe=recaptcha_iframe)
 
         # Submit registration
+        _logger.debug('Submitting registration')
         submit_btn = driver.find_element(By.CSS_SELECTOR, 'button[data-step="username-and-password"]')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(submit_btn))
         try_to_click(submit_btn, delay=MICRO_DELAY_S)
