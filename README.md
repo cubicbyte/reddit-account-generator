@@ -144,14 +144,16 @@ protect_account(username)
 Using proxy:
     
 ```python
-from reddit_account_generator.proxies import Proxy
+from reddit_account_generator import create_account, protect_account, install_driver
+from reddit_account_generator.proxies import TorProxy
 
-...
+email = 'your-email@gmail.com'
+# Username and password will be generated automatically
 
 proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
 
-create_account(email, username, password, proxy=proxy.get_next())
-protect_account(username, password)  # Proxy not required
+uname, pwd = create_account(email, proxy=proxy.get_next())
+protect_account(username=uname, password=pwd)  # Proxy not required
 ```
 
 
