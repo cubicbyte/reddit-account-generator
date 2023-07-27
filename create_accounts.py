@@ -58,8 +58,6 @@ else:
 
 # Create accounts
 for i in range(num_of_accounts):
-    username = generate_username()
-    password = generate_password()
     proxy_ = proxy.get_next()
     retries = MAX_RETRIES
 
@@ -68,12 +66,11 @@ for i in range(num_of_accounts):
 
     while True:
         try:
-            username = create_account(EMAIL, password,
-                         proxies=proxy_, hide_browser=HIDE_BROWSER)
+            username, password = create_account(EMAIL, proxies=proxy_, hide_browser=HIDE_BROWSER)
             break
 
         except UsernameTakenException:
-            print(f'Username taken. Trying again.')
+            print(f'Username {username} taken. Trying again.')
 
         except NetworkException as e:
             # If we are using local IP address, we can't bypass IP cooldown
@@ -99,6 +96,7 @@ for i in range(num_of_accounts):
                 print(f'An error occurred during account creation. Exiting...')
                 exit(1)
             print(f'An error occurred during account creation. Trying again {retries} more times...')
+            username, password = None, None
 
     save_account(EMAIL, username, password)
     print('Account created! Protecting account...')
