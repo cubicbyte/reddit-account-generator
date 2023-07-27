@@ -136,7 +136,7 @@ password = '31vV3X1zy8YP'
 create_account(email, username, password)
 
 # Protect account from being suspended of being a bot
-protect_account(username)
+protect_account(username, password)
 
 # Done!
 ```
