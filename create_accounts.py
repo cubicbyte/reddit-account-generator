@@ -1,3 +1,5 @@
+import logging
+
 from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
 from reddit_account_generator import maker, protector, create_account, protect_account, install_driver
@@ -6,6 +8,22 @@ from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
 from config import *
 
+
+num_of_accounts = int(input('How many accounts do you want to make? '))
+
+
+# Set logging
+_logger = logging.getLogger('script')
+logging.getLogger('webdriverdownloader').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('selenium').setLevel(logging.WARNING)
+
+try:
+    import coloredlogs
+    coloredlogs.install(level='DEBUG', fmt='%(asctime)s %(levelname)s %(message)s')
+except ImportError:
+    logging.basicConfig(level='DEBUG')
+    logging.warning('Coloredlogs is not installed. Install it with "pip install coloredlogs" to get cool logs!')
 
 # Set config variables
 maker.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
@@ -17,43 +35,42 @@ protector.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
     # Install firefox driver binary
+    _logger.info('Installing firefox driver...')
     install_driver()
 
 
 def save_account(email: str, username: str, password: str):
     """Save account credentials to a file."""
+    _logger.debug('Saving account credentials')
     with open(ACCOUNTS_FILE, 'a', encoding='utf-8') as f:
         f.write(f'{email};{username};{password}\n')
 
 
-num_of_accounts = int(input('How many accounts do you want to make? '))
-
-
 # Check for tor and proxies
-print('Checking if tor is running...')
+_logger.info('Checking if tor is running...')
 is_tor_running = check_tor_running(TOR_IP, TOR_SOCKS5_PORT)
 proxies = load_proxies(PROXIES_FILE)
 is_proxies_loaded = len(proxies) != 0
 
 # Define proxy manager: Tor, Proxies file or local IP
 if is_tor_running:
-    print('Tor is running. Connecting to Tor...')
+    _logger.info('Tor is running. Connecting to Tor...')
     proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
-    print('Connected to Tor.')
-    print('You will probably see a lot of RecaptchaException, but it\'s ok.')
+    _logger.info('Connected to Tor.')
+    _logger.info('You will probably see a lot of RecaptchaException, but it\'s ok.')
 
 else:
-    print('Tor is not running.')
+    _logger.info('Tor is not running.')
 
     if is_proxies_loaded:
         proxy = DefaultProxy(proxies)
-        print(f'Loaded {len(proxies)} proxies.')
+        logging.info('Loaded %s proxies.', len(proxies))
 
     else:
         proxy = EmptyProxy()
-        print('No proxies loaded. Using local IP address.')
-        print('Tor is not running. It is recommended to run Tor to avoid IP cooldowns.\n\n' +
-             f'Please, run command "python run_tor.py" or add proxies to file {PROXIES_FILE}')
+        _logger.warning('No proxies loaded. Using local IP address.')
+        _logger.warning('Tor is not running. It is recommended to run Tor to avoid IP cooldowns.\n\n' +
+                        'Please, run command "python run_tor.py" or add proxies to file %s\n', PROXIES_FILE)
 
 
 # Create accounts
@@ -61,8 +78,8 @@ for i in range(num_of_accounts):
     proxy_ = proxy.get_next()
     retries = MAX_RETRIES
 
-    print(f'Creating account ({i+1}/{num_of_accounts})')
-    print(f'Using proxy: {proxy}')
+    _logger.info('Creating account (%s/%s)', i+1, num_of_accounts)
+    _logger.info('Using proxy: %s', proxy)
 
     while True:
         try:
@@ -70,49 +87,51 @@ for i in range(num_of_accounts):
             break
 
         except UsernameTakenException:
-            print(f'Username {username} taken. Trying again.')
+            _logger.error('Username %s taken. Trying again.', username)
 
         except NetworkException as e:
             # If we are using local IP address, we can't bypass IP cooldown
             if isinstance(proxy, EmptyProxy) and (
                     isinstance(e, IPCooldownException) or
                     isinstance(e, EMailCooldownException)):
-                print(e)
-                print(f'IP cooldown. Try again later or use tor/proxies.')
+                _logger.error(e)
+                _logger.error('IP cooldown. Try again later or use tor/proxies.')
                 exit(0)
 
-            print(f'Network failed with {e.__class__.__name__}.')
+            _logger.error('Network failed with %s.', e.__class__.__name__)
             proxy_ = proxy.get_next()
-            print(f'Using next proxy: {proxy}')
+            _logger.info('Using next proxy: %s', proxy)
 
         except (KeyboardInterrupt, SystemExit, NoSuchWindowException):
-            print('Exiting...')
+            _logger.info('Exiting...')
             exit(0)
 
         except WebDriverException as e:
-            print(e)
+            _logger.error(e)
             retries -= 1
             if retries <= 0:
-                print(f'An error occurred during account creation. Exiting...')
+                _logger.error('An error occurred during account creation. Exiting...')
                 exit(1)
-            print(f'An error occurred during account creation. Trying again {retries} more times...')
+            logging.error('An error occurred during account creation. Trying again %s more times...', retries)
             username, password = None, None
 
     save_account(EMAIL, username, password)
-    print('Account created! Protecting account...')
+    _logger.info('Account created! Protecting account...')
 
     # Try to protect account
     for i in range(MAX_RETRIES):
         try:
             protect_account(username, password, hide_browser=HIDE_BROWSER)
-            print('Account protected!')
+            _logger.info('Account protected!\n')
             break
 
         except IncorrectUsernameOrPasswordException:
-            print('Seems like the account was not created or was deleted. Skipping...')
+            _logger.error('Seems like the account was not created or was deleted. Skipping...')
             break
         except WebDriverException as e:
-            print(e)
-            print(f'An error occurred during account protection. Trying again... [{i+1}/{MAX_RETRIES}]')
+            _logger.error(e)
+            _logger.error('An error occurred during account protection. Trying again... [%s/%s]', i+1, MAX_RETRIES)
     else:
-        print('Account protection failed. Skipping...')
+        _logger.error('Account protection failed. Skipping...')
+
+_logger.info('Done!')
