@@ -89,11 +89,13 @@ for i in range(num_of_accounts):
         except UsernameTakenException:
             _logger.error('Username %s taken. Trying again.', username)
 
+        except SessionExpiredException:
+            _logger.error('Page session expired. Trying again.')
+
         except NetworkException as e:
             # If we are using local IP address, we can't bypass IP cooldown
             if isinstance(proxy, EmptyProxy) and (
-                    isinstance(e, IPCooldownException) or
-                    isinstance(e, EMailCooldownException)):
+                    isinstance(e, IPCooldownException)):
                 _logger.error(e)
                 _logger.error('IP cooldown. Try again later or use tor/proxies.')
                 exit(0)

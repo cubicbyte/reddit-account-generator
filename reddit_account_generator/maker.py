@@ -1,11 +1,11 @@
 import time
 import logging
 
-from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium_recaptcha_solver import RecaptchaSolver
+from selenium_recaptcha_solver import RecaptchaSolver, RecaptchaException
 
 from .utils import setup_firefox_driver, try_to_click, generate_password, generate_username
 from .exceptions import *
@@ -39,6 +39,14 @@ def create_account(email: str, username: str | None = None, password: str | None
         except WebDriverException:
             raise TimeoutException('Website takes too long to load. Probably a problem with the proxy.')
 
+        # Checking if IP is blocked
+        try:
+            first_h1 = driver.find_element(By.TAG_NAME, 'h1')
+            if first_h1.text == 'whoa there, pardner!':
+                raise IPCooldownException('Your IP is temporarily blocked. Try again later.')
+        except NoSuchElementException:
+            pass
+
         # Enter email and go to next page
         _logger.debug('Entering email')
         email_input = driver.find_element(By.ID, 'regEmail')
@@ -56,7 +64,7 @@ def create_account(email: str, username: str | None = None, password: str | None
         else:
             if email_err.text != '':
                 if 'again' in email_err.text.lower():
-                    raise EMailCooldownException(email_err.text)
+                    raise SessionExpiredException(email_err.text)
                 raise Exception(email_err.text)
 
         # Wait until page loads
@@ -113,7 +121,14 @@ def create_account(email: str, username: str | None = None, password: str | None
 
         if recaptcha_iframe.is_displayed():
             solver = RecaptchaSolver(driver)
-            solver.click_recaptcha_v2(iframe=recaptcha_iframe)
+            for _ in range(5):
+                try:
+                    solver.click_recaptcha_v2(iframe=recaptcha_iframe)
+                    break
+                except ElementClickInterceptedException:
+                    pass
+            else:
+                raise RecaptchaException('Could not solve captcha')
 
         # Submit registration
         _logger.debug('Submitting registration')

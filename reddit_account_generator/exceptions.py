@@ -17,7 +17,7 @@ class PasswordLengthException(Exception):
 class IPCooldownException(Exception):
     pass
 
-class EMailCooldownException(Exception):
+class SessionExpiredException(Exception):
     pass
 
 class IncorrectUsernameOrPasswordException(Exception):
