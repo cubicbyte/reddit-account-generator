@@ -45,7 +45,7 @@ def protect_account(username: str, password: str,
     - For now, that's all
     """
 
-    logging.info('Protecting account with username {}', username)
+    logging.info('Protecting account with username %s', username)
     driver = setup_firefox_driver(proxies, hide_browser)
 
     if PAGE_LOAD_TIMEOUT_S is not None:
@@ -88,7 +88,7 @@ def protect_account(username: str, password: str,
 
         # Go to random subreddit
         sub = random.choice(subs)
-        _logger.debug('Going to subreddit r/{}', sub)
+        _logger.debug('Going to subreddit r/%s', sub)
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.url_matches('https://www.reddit.com*'))
         driver.get(f'https://www.reddit.com/r/{sub}/')
 

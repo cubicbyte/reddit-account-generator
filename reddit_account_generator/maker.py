@@ -63,7 +63,7 @@ def create_account(email: str, username: str | None = None, password: str | None
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.ID, 'regUsername')))
 
         # Enter username
-        _logger.debug('Entering username')
+        _logger.debug('Entering username and password')
         username_input = driver.find_element(By.ID, 'regUsername')
         random_username = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
         if username is not None:
@@ -76,7 +76,6 @@ def create_account(email: str, username: str | None = None, password: str | None
             username = random_username.text
 
         # Enter password
-        _logger.debug('Entering password')
         password_input = driver.find_element(By.ID, 'regPassword')
         try_to_click(password_input, delay=MICRO_DELAY_S)
         password_input.send_keys(password)
