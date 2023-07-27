@@ -11,6 +11,7 @@ HIDE_BROWSER = False
 MAX_RETRIES = 3  # Max retries for creating/protecting account
 # You can set to False if you have Firefox installed
 BUILTIN_DRIVER = True
+LOG_LEVEL = 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Tor proxy config
 TOR_IP = '127.0.0.1'

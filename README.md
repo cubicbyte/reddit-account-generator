@@ -57,7 +57,7 @@ cd reddit-account-generator
 2. Install the required dependencies:
 
 ```shell
-pip install -r requirements.txt
+pip install -r requirements-cli.txt
 ```
 
 ## Script usage
@@ -136,7 +136,7 @@ password = '31vV3X1zy8YP'
 create_account(email, username, password)
 
 # Protect account from being suspended of being a bot
-protect_account(username)
+protect_account(username, password)
 
 # Done!
 ```
@@ -164,6 +164,8 @@ protect_account(username=uname, password=pwd)  # Proxy not required
 - [selenium-recaptcha-solver](https://pypi.org/project/selenium-recaptcha-solver/)
 - [random-username](https://pypi.org/project/random-username/)
 - [webdriverdownloader](https://pypi.org/project/webdriverdownloader/)
+- [stem](https://pypi.org/project/stem/)
+- [coloredlogs](https://pypi.org/project/coloredlogs/) *optional
 
 ## Contributing
 
