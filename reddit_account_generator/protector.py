@@ -59,7 +59,7 @@ def protect_account(username: str, password: str,
             driver.get('https://www.reddit.com/login/')
         except WebDriverException:
             raise TimeoutException('Website takes too long to load. Probably a problem with the proxy.')
-        
+
         # Enter username and password
         _logger.debug('Entering username and password')
         username_input = driver.find_element(By.ID, 'loginUsername')

@@ -2,7 +2,7 @@ import logging
 
 from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
-from reddit_account_generator import maker, protector, create_account, protect_account, install_driver
+from reddit_account_generator import emailVerification, maker, protector, create_account, protect_account, install_driver, scriptCreator, make_script, gen, verify
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
 from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
@@ -32,19 +32,26 @@ maker.MICRO_DELAY_S = MICRO_DELAY_S
 protector.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
 protector.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
 protector.MICRO_DELAY_S = MICRO_DELAY_S
+scriptCreator.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
+scriptCreator.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
+scriptCreator.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
     # Install firefox driver binary
     _logger.info('Installing firefox driver...')
     install_driver()
 
+if VERIFY_EMAIL == False and CREATE_SCRIPT == True:
+    raise 'You need to have email verification on if you are creating a script.'
 
 def save_account(email: str, username: str, password: str):
     """Save account credentials to a file."""
     _logger.debug('Saving account credentials')
     with open(ACCOUNTS_FILE, 'a', encoding='utf-8') as f:
-        f.write(f'{email};{username};{password}\n')
-
+        if not CREATE_SCRIPT:
+            f.write(f'{email};{username};{password}\n')
+        else:
+            f.write(f'{email};{username};{password}')
 
 # Check for tor and proxies
 _logger.info('Checking if tor is running...')
@@ -83,7 +90,11 @@ for i in range(num_of_accounts):
 
     while True:
         try:
-            username, password = create_account(EMAIL, proxies=proxy_, hide_browser=HIDE_BROWSER)
+            if VERIFY_EMAIL == True:
+                Email = gen()
+            else:
+                Email = EMAIL
+            username, password = create_account(Email, proxies=proxy_, hide_browser=HIDE_BROWSER)
             break
 
         except UsernameTakenException:
@@ -115,7 +126,7 @@ for i in range(num_of_accounts):
             logging.error('An error occurred during account creation. Trying again %s more times...', retries)
             username, password = None, None
 
-    save_account(EMAIL, username, password)
+    save_account(Email, username, password)
     _logger.info('Account created! Protecting account...')
 
     # Try to protect account
@@ -133,5 +144,22 @@ for i in range(num_of_accounts):
             _logger.error('An error occurred during account protection. Trying again... [%s/%s]', i+1, MAX_RETRIES)
     else:
         _logger.error('Account protection failed. Skipping...')
+
+    if VERIFY_EMAIL:
+        try:
+            verify(Email, hide_browser=HIDE_BROWSER)
+        except Exception as e:
+            raise e
+
+    if CREATE_SCRIPT:
+        try:
+            _logger.info('Creating script...')
+            clientID, clientSecret = make_script(username, password, proxy_, hide_browser=HIDE_BROWSER)
+            _logger.info('Script created!')
+            open(ACCOUNTS_FILE, 'a', encoding='utf-8').write(f';{clientID};{clientSecret}\n')
+        except WebDriverException as e:
+            _logger.error(e)
+            _logger.error('An error occurred. Breaking.')
+            open(ACCOUNTS_FILE, 'a', encoding='utf-8').write(f'\n')
 
 _logger.info('Done!')
