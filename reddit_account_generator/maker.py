@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium_recaptcha_solver import RecaptchaSolver
 
-from .utils import setup_firefox_driver, try_to_click
+from .utils import setup_firefox_driver, try_to_click, generate_password
 from .exceptions import *
 
 PAGE_LOAD_TIMEOUT_S = 60
@@ -15,15 +15,18 @@ DRIVER_TIMEOUT_S = 60
 MICRO_DELAY_S = 1
 
 
-def create_account(email: str, username: str, password: str,
-                   proxies: dict[str, str] | None = None, hide_browser: bool = True):
+def create_account(email: str, username: str | None = None, password: str | None = None,
+                   proxies: dict[str, str] | None = None, hide_browser: bool = True) -> tuple[str, str]:
     """Create a Reddit account."""
 
-    logging.info('Creating account with username %s', username)
+    logging.info('Creating account.')
     driver = setup_firefox_driver(proxies, hide_browser)
 
     if PAGE_LOAD_TIMEOUT_S is not None:
         driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_S)
+
+    if password is None:
+        password = generate_password()
 
     try:  # try/except to quit driver if error occurs
 
@@ -55,10 +58,16 @@ def create_account(email: str, username: str, password: str,
         # Wait until page loads
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.ID, 'regUsername')))
 
-        # Enter username
         username_input = driver.find_element(By.ID, 'regUsername')
-        try_to_click(username_input, delay=MICRO_DELAY_S)
-        username_input.send_keys(username)
+        random_username = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
+        if username is not None:
+            # Enter username
+            try_to_click(username_input, delay=MICRO_DELAY_S)
+            username_input.send_keys(username)
+        else:
+            # Click first reddit sugegsted name
+            try_to_click(random_username, delay=MICRO_DELAY_S)
+            username = random_username.text
 
         # Enter password
         password_input = driver.find_element(By.ID, 'regPassword')
@@ -117,3 +126,4 @@ def create_account(email: str, username: str, password: str,
         raise e
 
     driver.quit()
+    return username, password
