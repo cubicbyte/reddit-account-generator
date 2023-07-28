@@ -74,6 +74,7 @@ def setup_chrome_driver(proxies: dict[str, str] | None = None, hide_browser: boo
 
 def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Firefox:
     options = webdriver.FirefoxOptions()
+    options.set_preference('intl.accept_languages', 'en-US')
 
     if hide_browser:
         options.add_argument('--headless')
