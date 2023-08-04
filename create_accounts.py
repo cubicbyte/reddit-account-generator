@@ -76,12 +76,12 @@ else:
 # Create accounts
 for i in range(num_of_accounts):
     proxy_ = proxy.get_next()
-    retries = MAX_RETRIES
+    retries = 0
 
     _logger.info('Creating account (%s/%s)', i+1, num_of_accounts)
     _logger.info('Using proxy: %s', proxy)
 
-    while True:
+    while retries < MAX_RETRIES:
         try:
             username, password = create_account(EMAIL, proxies=proxy_, hide_browser=HIDE_BROWSER)
             break
@@ -110,12 +110,12 @@ for i in range(num_of_accounts):
 
         except WebDriverException as e:
             _logger.error(e)
-            retries -= 1
-            if retries <= 0:
-                _logger.error('An error occurred during account creation. Exiting...')
-                exit(1)
-            logging.error('An error occurred during account creation. Trying again %s more times...', retries)
+            logging.error('An error occurred during account creation. Trying again %s more times...', MAX_RETRIES - retries)
+            retries += 1
             username, password = None, None
+    else:
+        _logger.error('An error occurred during account creation. Exiting...')
+        exit(1)
 
     save_account(EMAIL, username, password)
     _logger.info('Account created! Protecting account...')
