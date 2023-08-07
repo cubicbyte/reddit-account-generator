@@ -20,9 +20,9 @@ logging.getLogger('selenium').setLevel(logging.WARNING)
 
 try:
     import coloredlogs
-    coloredlogs.install(level='DEBUG', fmt='%(asctime)s %(levelname)s %(message)s')
+    coloredlogs.install(level=LOG_LEVEL, fmt='%(asctime)s %(levelname)s %(message)s')
 except ImportError:
-    logging.basicConfig(level='DEBUG')
+    logging.basicConfig(level=LOG_LEVEL)
     logging.warning('Coloredlogs is not installed. Install it with "pip install coloredlogs" to get cool logs!')
 
 # Set config variables
