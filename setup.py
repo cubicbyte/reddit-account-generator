@@ -26,11 +26,12 @@ setup(
     license='MIT',
     keywords='python reddit account-generator account-maker account-generation r-place rplace',
     install_requires=[
-        'selenium==4.8.3',
-        'selenium-recaptcha-solver==1.9.0',
-        'random-username==1.0.2',
-        'webdriverdownloader==1.1.0.3',
-        'stem==1.8.2',
+        'selenium >=4.7.0, <=4.9.1',
+        'selenium-recaptcha-solver >=1.4.0, <=1.9.0',
+        'random-username >=1.0.0, <=1.0.2',
+        'webdriverdownloader >=1.0.0, <=1.1.0.3',
+        'stem >=1.8.0, <=1.8.2',
+        'static-ffmpeg >=2.3, <=2.5',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
