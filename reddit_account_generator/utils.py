@@ -55,6 +55,7 @@ def check_tor_running(ip: str, port: int) -> bool:
 
 def setup_chrome_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Chrome:
     options = webdriver.ChromeOptions()
+    options.add_argument('--lang=en-US')
 
     if hide_browser:
         options.add_argument('--headless')
@@ -74,6 +75,7 @@ def setup_chrome_driver(proxies: dict[str, str] | None = None, hide_browser: boo
 
 def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Firefox:
     options = webdriver.FirefoxOptions()
+    options.set_preference('intl.accept_languages', 'en-US')
 
     if hide_browser:
         options.add_argument('--headless')

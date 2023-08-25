@@ -20,9 +20,9 @@ logging.getLogger('selenium').setLevel(logging.WARNING)
 
 try:
     import coloredlogs
-    coloredlogs.install(level='DEBUG', fmt='%(asctime)s %(levelname)s %(message)s')
+    coloredlogs.install(level=LOG_LEVEL, fmt='%(asctime)s %(levelname)s %(message)s')
 except ImportError:
-    logging.basicConfig(level='DEBUG')
+    logging.basicConfig(level=LOG_LEVEL)
     logging.warning('Coloredlogs is not installed. Install it with "pip install coloredlogs" to get cool logs!')
 
 # Set config variables
@@ -80,12 +80,12 @@ else:
 # Create accounts
 for i in range(num_of_accounts):
     proxy_ = proxy.get_next()
-    retries = MAX_RETRIES
+    retries = 0
 
     _logger.info('Creating account (%s/%s)', i+1, num_of_accounts)
     _logger.info('Using proxy: %s', proxy)
 
-    while True:
+    while retries < MAX_RETRIES:
         try:
             email, username, password = create_account(
                 email=EMAIL or None,
@@ -97,11 +97,13 @@ for i in range(num_of_accounts):
         except UsernameTakenException:
             _logger.error('Username %s taken. Trying again.', username)
 
+        except SessionExpiredException:
+            _logger.error('Page session expired. Trying again.')
+
         except NetworkException as e:
             # If we are using local IP address, we can't bypass IP cooldown
             if isinstance(proxy, EmptyProxy) and (
-                    isinstance(e, IPCooldownException) or
-                    isinstance(e, EMailCooldownException)):
+                    isinstance(e, IPCooldownException)):
                 _logger.error(e)
                 _logger.error('IP cooldown. Try again later or use tor/proxies.')
                 exit(0)
@@ -116,12 +118,12 @@ for i in range(num_of_accounts):
 
         except WebDriverException as e:
             _logger.error(e)
-            retries -= 1
-            if retries <= 0:
-                _logger.error('An error occurred during account creation. Exiting...')
-                exit(1)
-            logging.error('An error occurred during account creation. Trying again %s more times...', retries)
+            logging.error('An error occurred during account creation. Trying again %s more times...', MAX_RETRIES - retries)
+            retries += 1
             username, password = None, None
+    else:
+        _logger.error('An error occurred during account creation. Exiting...')
+        exit(1)
 
     save_account(email, username, password)
     _logger.info('Account created! Protecting account...')

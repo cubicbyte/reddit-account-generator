@@ -9,7 +9,7 @@ PAGE_LOAD_TIMEOUT_S = 120   # int, float or None
 DRIVER_TIMEOUT_S = 120    # int, float
 MICRO_DELAY_S = 1       # int, float
 HIDE_BROWSER = False
-MAX_RETRIES = 3  # Max retries for creating/protecting account
+MAX_RETRIES = 10  # Max retries for creating/protecting account
 # You can set to False if you have Firefox installed
 BUILTIN_DRIVER = False
 LOG_LEVEL = 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
