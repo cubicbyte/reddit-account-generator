@@ -1,4 +1,5 @@
 
+# You can set here your email if you want, but in that case you need to manually verify account
 EMAIL = ''
 
 PROXIES_FILE = 'proxies.txt'
@@ -12,8 +13,6 @@ MAX_RETRIES = 3  # Max retries for creating/protecting account
 # You can set to False if you have Firefox installed
 BUILTIN_DRIVER = False
 LOG_LEVEL = 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-CREATE_SCRIPT = False
-VERIFY_EMAIL = False
 
 # Tor proxy config
 TOR_IP = '127.0.0.1'
@@ -22,8 +21,3 @@ TOR_SOCKS5_PORT = 9050
 TOR_CONTROL_PORT = 9051
 TOR_PASSWORD = 'Passwort'
 TOR_DELAY = 5
-
-if VERIFY_EMAIL == False and EMAIL == '':
-    assert 'Please enter your email in config.py file'
-if CREATE_SCRIPT == True and VERIFY_EMAIL == False:
-    assert 'In order to create a script, you need to have verify email on.'

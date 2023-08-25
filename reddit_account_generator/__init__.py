@@ -1,7 +1,6 @@
 from .maker import create_account
 from .protector import protect_account
-from .scriptCreator import make_script
-from .emailVerification import gen, verify
+from .verifier import verify_email
 
 def install_driver():
     """Install firefox driver binary."""

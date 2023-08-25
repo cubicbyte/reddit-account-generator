@@ -3,3 +3,4 @@ selenium-recaptcha-solver >=1.4.0, <=1.9.0
 random-username >=1.0.0, <=1.0.2
 webdriverdownloader >=1.0.0, <=1.1.0.3
 stem >=1.8.0, <=1.8.2
+tempmail-python==2.3.0

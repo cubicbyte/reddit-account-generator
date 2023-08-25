@@ -31,6 +31,7 @@ setup(
         'random-username==1.0.2',
         'webdriverdownloader==1.1.0.3',
         'stem==1.8.2',
+        'tempmail-python==2.3.0',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

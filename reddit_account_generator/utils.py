@@ -6,6 +6,7 @@ import secrets
 
 import requests
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
 
@@ -96,7 +97,7 @@ def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bo
             options.set_preference('network.proxy.socks_port', int(socks_port))
             options.set_preference('network.proxy.socks_remote_dns', False)
 
-    return webdriver.Firefox(options=options, service_log_path=os.devnull)
+    return webdriver.Firefox(options=options)
 
 
 def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int = 20) -> bool:

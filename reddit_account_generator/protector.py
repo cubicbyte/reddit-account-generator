@@ -100,8 +100,5 @@ def protect_account(username: str, password: str,
 
         # Done!
 
-    except Exception as e:  # quit driver if error occurs
+    finally:  # quit driver if error occurs
         driver.quit()
-        raise e
-
-    driver.quit()
