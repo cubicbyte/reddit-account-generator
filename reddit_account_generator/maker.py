@@ -1,6 +1,7 @@
 import time
 import logging
 
+from tempmail import EMail
 from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,8 +18,8 @@ MICRO_DELAY_S = 1
 _logger = logging.getLogger(__name__)
 
 
-def create_account(email: str, username: str | None = None, password: str | None = None,
-                   proxies: dict[str, str] | None = None, hide_browser: bool = True) -> tuple[str, str]:
+def create_account(email: str | None = None, username: str | None = None, password: str | None = None,
+                   proxies: dict[str, str] | None = None, hide_browser: bool = True) -> tuple[str, str, str]:
     """Create a Reddit account."""
 
     _logger.info('Creating reddit account')
@@ -26,6 +27,9 @@ def create_account(email: str, username: str | None = None, password: str | None
 
     if PAGE_LOAD_TIMEOUT_S is not None:
         driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_S)
+
+    if email is None:
+        email = EMail().address
 
     if password is None:
         password = generate_password()
@@ -113,7 +117,7 @@ def create_account(email: str, username: str | None = None, password: str | None
             if 'character' in password_err.text.lower():
                 raise PasswordLengthException(password_err.text)
             raise Exception(password_err.text)
-        
+
         # Solve captcha
         _logger.debug('Solving captcha')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.XPATH, '//iframe[@title="reCAPTCHA"]')))
@@ -150,9 +154,7 @@ def create_account(email: str, username: str | None = None, password: str | None
 
         # Account created!
 
-    except Exception as e:  # quit driver if error occurs
+    finally:  # quit driver if error occurs
         driver.quit()
-        raise e
 
-    driver.quit()
-    return username, password
+    return email, username, password

@@ -2,7 +2,7 @@ import logging
 
 from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
-from reddit_account_generator import maker, protector, create_account, protect_account, install_driver
+from reddit_account_generator import maker, protector, verifier, create_account, protect_account, verify_email, install_driver
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
 from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
@@ -26,12 +26,16 @@ except ImportError:
     logging.warning('Coloredlogs is not installed. Install it with "pip install coloredlogs" to get cool logs!')
 
 # Set config variables
+# TODO: Make this better
 maker.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
 maker.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
 maker.MICRO_DELAY_S = MICRO_DELAY_S
 protector.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
 protector.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
 protector.MICRO_DELAY_S = MICRO_DELAY_S
+verifier.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
+verifier.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
+verifier.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
     # Install firefox driver binary
@@ -83,7 +87,11 @@ for i in range(num_of_accounts):
 
     while retries < MAX_RETRIES:
         try:
-            username, password = create_account(EMAIL, proxies=proxy_, hide_browser=HIDE_BROWSER)
+            email, username, password = create_account(
+                email=EMAIL or None,
+                proxies=proxy_,
+                hide_browser=HIDE_BROWSER
+            )
             break
 
         except UsernameTakenException:
@@ -117,14 +125,14 @@ for i in range(num_of_accounts):
         _logger.error('An error occurred during account creation. Exiting...')
         exit(1)
 
-    save_account(EMAIL, username, password)
+    save_account(email, username, password)
     _logger.info('Account created! Protecting account...')
 
     # Try to protect account
     for i in range(MAX_RETRIES):
         try:
             protect_account(username, password, hide_browser=HIDE_BROWSER)
-            _logger.info('Account protected!\n')
+            _logger.info('Account protected!')
             break
 
         except IncorrectUsernameOrPasswordException:
@@ -135,5 +143,17 @@ for i in range(num_of_accounts):
             _logger.error('An error occurred during account protection. Trying again... [%s/%s]', i+1, MAX_RETRIES)
     else:
         _logger.error('Account protection failed. Skipping...')
+
+    if not EMAIL:
+        for i in range(MAX_RETRIES):
+            try:
+                verify_email(email)
+                _logger.info('Email verified!\n')
+                break
+            except WebDriverException as e:
+                _logger.error(e)
+                _logger.error('An error occurred during email verification. Trying again... [%s/%s]', i+1, MAX_RETRIES)
+        else:
+            _logger.error('Email verification failed. Skipping...')
 
 _logger.info('Done!')

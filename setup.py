@@ -32,6 +32,7 @@ setup(
         'webdriverdownloader >=1.0.0, <=1.1.0.3',
         'stem >=1.8.0, <=1.8.2',
         'static-ffmpeg >=2.3, <=2.5',
+        'tempmail-python==2.3.0',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

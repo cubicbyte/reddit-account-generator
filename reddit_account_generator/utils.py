@@ -99,7 +99,7 @@ def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bo
             options.set_preference('network.proxy.socks_port', int(socks_port))
             options.set_preference('network.proxy.socks_remote_dns', False)
 
-    return webdriver.Firefox(options=options, service_log_path=os.devnull)
+    return webdriver.Firefox(options=options)
 
 
 def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int = 20) -> bool:

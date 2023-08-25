@@ -23,4 +23,7 @@ class SessionExpiredException(Exception):
 class IncorrectUsernameOrPasswordException(Exception):
     pass
 
+class EmailVerificationException(Exception):
+    pass
+
 NetworkException = (RecaptchaException, IPCooldownException, TimeoutException)

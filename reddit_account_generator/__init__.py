@@ -9,6 +9,7 @@ del static_ffmpeg
 
 from .maker import create_account
 from .protector import protect_account
+from .verifier import verify_email
 
 
 def install_driver():
