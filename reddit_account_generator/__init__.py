@@ -1,5 +1,9 @@
-# Download necessary ffmpeg binary
 import static_ffmpeg
+import logging as _logging
+_logger = _logging.getLogger(__name__)
+
+# Download necessary ffmpeg binary
+_logger.info('Downloading ffmpeg binary...')
 static_ffmpeg.add_paths()
 del static_ffmpeg
 
