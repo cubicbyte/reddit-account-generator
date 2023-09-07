@@ -118,6 +118,10 @@ try:
                 proxies = proxy.get_next()
                 logger.info('Using next proxy: %s', proxy)
 
+            except NoSuchWindowException as e:
+                # Handle this in top level try-except
+                raise e
+
             except WebDriverException as e:
                 logger.error(e)
                 logging.error('An error occurred during account creation. Trying again %s more times...', MAX_RETRIES - retries)
