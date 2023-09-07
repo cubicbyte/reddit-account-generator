@@ -17,7 +17,7 @@ from .exceptions import IPCooldownException, SessionExpiredException, UsernameTa
     UsernameLengthException, UsernameSymbolsException, PasswordLengthException
 
 
-_logger = logging.getLogger(__name__)
+logger = logging.getLogger('reddit_account_generator')
 
 
 def create_account(email: str | None = None, username: str | None = None, password: str | None = None,
@@ -32,7 +32,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
     :return: Tuple of email, username and password
     """
 
-    _logger.info('Creating reddit account')
+    logger.info('Creating reddit account')
     driver = setup_firefox_driver(proxies, hide_browser)
 
     if PAGE_LOAD_TIMEOUT_S is not None:
@@ -47,7 +47,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
     try:  # try/except to quit driver if error occurs
 
         # Open website
-        _logger.debug('Opening registration page')
+        logger.debug('Opening registration page')
         try:
             driver.get('https://www.reddit.com/register/')
         except WebDriverException:
@@ -62,7 +62,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
             pass
 
         # Enter email and go to next page
-        _logger.debug('Entering email')
+        logger.debug('Entering email')
         email_input = driver.find_element(By.ID, 'regEmail')
         email_submit = driver.find_element(By.CSS_SELECTOR, 'button[data-step="email"]')
         email_input.click()
@@ -85,7 +85,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.ID, 'regUsername')))
 
         # Enter username
-        _logger.debug('Entering username and password')
+        logger.debug('Entering username and password')
         try:
             # Get random username suggested by reddit
             random_username = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
@@ -129,7 +129,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
             raise Exception(password_err.text)
 
         # Solve captcha
-        _logger.debug('Solving captcha')
+        logger.debug('Solving captcha')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.XPATH, '//iframe[@title="reCAPTCHA"]')))
         recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
 
@@ -145,7 +145,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
                 raise RecaptchaException('Could not solve captcha')
 
         # Submit registration
-        _logger.debug('Submitting registration')
+        logger.debug('Submitting registration')
         submit_btn = driver.find_element(By.CSS_SELECTOR, 'button[data-step="username-and-password"]')
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable(submit_btn))
         try_to_click(submit_btn, delay=MICRO_DELAY_S)
@@ -165,6 +165,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
         # Account created!
 
     finally:  # quit driver if error occurs
+        logger.debug('Quitting driver')
         driver.quit()
 
     return email, username, password

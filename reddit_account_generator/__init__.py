@@ -6,7 +6,7 @@ https://github.com/cubicbyte/reddit-account-generator
 
 import static_ffmpeg
 import logging as _logging
-_logger = _logging.getLogger(__name__)
+_logger = _logging.getLogger('reddit_account_generator')
 
 # Download necessary ffmpeg binary
 _logger.info('Downloading ffmpeg binary...')

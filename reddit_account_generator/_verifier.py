@@ -8,7 +8,7 @@ from tempmail import EMail
 from .config import USER_AGENT
 from .exceptions import EmailVerificationException
 
-_logger = logging.getLogger(__name__)
+logger = logging.getLogger('reddit_account_generator')
 
 
 def verify_email(email: str, proxies: dict[str, str] | None = None):
@@ -19,12 +19,13 @@ def verify_email(email: str, proxies: dict[str, str] | None = None):
     :param email: Email to verify
     :param proxies: Proxies to use: {'https': '<ip:port>'}
     """
+    logger.info(f'Verifying reddit account email {email}')
 
     # Get verification link
     link = get_verification_link(email)
     direct_link = get_direct_verification_link(link)
 
-    _logger.debug('Verifying email')
+    logger.debug('Verifying email')
     resp = requests.post(direct_link, headers={
         'User-Agent': USER_AGENT
     }, proxies=proxies)
@@ -33,7 +34,7 @@ def verify_email(email: str, proxies: dict[str, str] | None = None):
         if 'EMAIL_ALREADY_VERIFIED' not in resp.text:
             raise EmailVerificationException(resp.text)
 
-        _logger.warning('Email is already verified')
+        logger.warning('Email is already verified')
 
 
 def get_verification_link(email: str) -> str:
@@ -42,7 +43,7 @@ def get_verification_link(email: str) -> str:
     except ValueError:
         raise ValueError('Verification of this email is not supported.')
 
-    _logger.debug('Waiting for email...')
+    logger.debug('Waiting for email...')
     msg = email_.wait_for_message(filter=lambda m: 'reddit' in m.subject.lower())
 
     # Get link
