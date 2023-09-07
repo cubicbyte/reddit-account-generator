@@ -22,7 +22,7 @@ def verify_email(email: str, proxies: dict[str, str] | None = None):
     logger.info(f'Verifying reddit account email {email}')
 
     # Get verification link
-    link = get_verification_link(email)
+    link = get_verification_link(email, proxies=proxies)
     direct_link = get_direct_verification_link(link)
 
     logger.debug('Verifying email')
@@ -37,13 +37,14 @@ def verify_email(email: str, proxies: dict[str, str] | None = None):
         logger.warning('Email is already verified')
 
 
-def get_verification_link(email: str) -> str:
+def get_verification_link(email: str, proxies: dict[str, str] | None = None) -> str:
     try:
         email_ = EMail(email)
     except ValueError:
         raise ValueError('Verification of this email is not supported.')
 
     logger.debug('Waiting for email...')
+    email_._session.proxies = proxies
     msg = email_.wait_for_message(filter=lambda m: 'reddit' in m.subject.lower())
 
     # Get link
