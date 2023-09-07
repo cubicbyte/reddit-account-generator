@@ -4,28 +4,34 @@ from selenium.common.exceptions import TimeoutException
 from selenium_recaptcha_solver.exceptions import RecaptchaException
 
 
-class UsernameTakenException(Exception):
+class RedditException(Exception):
     pass
 
-class UsernameLengthException(Exception):
+class UsernameTakenException(RedditException):
     pass
 
-class UsernameSymbolsException(Exception):
+class UsernameLengthException(RedditException):
     pass
 
-class PasswordLengthException(Exception):
+class UsernameSymbolsException(RedditException):
     pass
 
-class IPCooldownException(Exception):
+class PasswordLengthException(RedditException):
     pass
 
-class SessionExpiredException(Exception):
+class SessionExpiredException(RedditException):
     pass
 
-class IncorrectUsernameOrPasswordException(Exception):
+class IncorrectUsernameOrPasswordException(RedditException):
     pass
 
-class EmailVerificationException(Exception):
+class EmailVerificationException(RedditException):
+    pass
+
+class AuthException(RedditException):
+    pass
+
+class IPCooldownException(RedditException):
     pass
 
 NetworkException = (RecaptchaException, IPCooldownException, TimeoutException)
