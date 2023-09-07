@@ -1,3 +1,5 @@
+"""General exceptions for the reddit_account_generator package."""
+
 from selenium.common.exceptions import TimeoutException
 from selenium_recaptcha_solver.exceptions import RecaptchaException
 

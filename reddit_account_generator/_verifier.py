@@ -1,3 +1,5 @@
+"""Module for verifying reddit account email"""
+
 import logging
 
 import requests
@@ -10,7 +12,13 @@ _logger = logging.getLogger(__name__)
 
 
 def verify_email(email: str, proxies: dict[str, str] | None = None):
-    _logger.info('Verifying reddit account email')
+    """Verify reddit account email on 1secmail provider.
+
+    Proxies are not needed for this step.
+
+    :param email: Email to verify
+    :param proxies: Proxies to use: {'https': '<ip:port>'}
+    """
 
     # Get verification link
     link = get_verification_link(email)
@@ -24,7 +32,7 @@ def verify_email(email: str, proxies: dict[str, str] | None = None):
     if resp.status_code != 200:
         if 'EMAIL_ALREADY_VERIFIED' not in resp.text:
             raise EmailVerificationException(resp.text)
-        
+
         _logger.warning('Email is already verified')
 
 

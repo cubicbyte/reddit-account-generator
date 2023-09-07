@@ -1,3 +1,5 @@
+"""Module for creating a reddit account"""
+
 import time
 import logging
 
@@ -20,7 +22,15 @@ _logger = logging.getLogger(__name__)
 
 def create_account(email: str | None = None, username: str | None = None, password: str | None = None,
                    proxies: dict[str, str] | None = None, hide_browser: bool = True) -> tuple[str, str, str]:
-    """Create a Reddit account."""
+    """Create a Reddit account.
+
+    :param email: Email address to use. If None, a random email will be generated.
+    :param username: Username to use. If None, a random username will be generated.
+    :param password: Password to use. If None, a random password will be generated.
+    :param proxies: Proxies to use: {'https': '<ip:port>'}
+    :param hide_browser: Hide browser window
+    :return: Tuple of email, username and password
+    """
 
     _logger.info('Creating reddit account')
     driver = setup_firefox_driver(proxies, hide_browser)

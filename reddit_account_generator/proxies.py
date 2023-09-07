@@ -1,3 +1,5 @@
+"""Proxy managers for Reddit account generator"""
+
 import time
 from abc import ABC, abstractmethod
 

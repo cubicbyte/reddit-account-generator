@@ -1,3 +1,9 @@
+"""A library for generating Reddit accounts.
+
+Documentation can be found at
+https://github.com/cubicbyte/reddit-account-generator
+"""
+
 import static_ffmpeg
 import logging as _logging
 _logger = _logging.getLogger(__name__)
