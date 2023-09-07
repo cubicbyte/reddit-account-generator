@@ -8,30 +8,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from .utils import setup_firefox_driver, try_to_click
+from .config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S, SUBS
 from .exceptions import IncorrectUsernameOrPasswordException
 
-PAGE_LOAD_TIMEOUT_S = 60
-DRIVER_TIMEOUT_S = 60
-MICRO_DELAY_S = 1
-
-# Random subreddits to subscribe to
-subs = [
-    'gaming',
-    'csgo',
-    'memes',
-    'tf2',
-    'askreddit',
-    'abruptchaos',
-    'perfectlycutscreams',
-    'askouija',
-    'apple',
-    'linux',
-    'pcmasterrace',
-    'clashroyale',
-    'minecraft',
-    'cursed_comments',
-    'shitposting',
-]
 _logger = logging.getLogger(__name__)
 
 
@@ -87,7 +66,7 @@ def protect_account(username: str, password: str,
         # Logged in!
 
         # Go to random subreddit
-        sub = random.choice(subs)
+        sub = random.choice(SUBS)
         _logger.debug('Going to subreddit r/%s', sub)
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.url_matches('https://www.reddit.com*'))
         driver.get(f'https://www.reddit.com/r/{sub}/')

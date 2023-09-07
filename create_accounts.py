@@ -2,7 +2,8 @@ import logging
 
 from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
-from reddit_account_generator import maker, protector, verifier, create_account, protect_account, verify_email, install_driver
+from reddit_account_generator import config as generator_config, \
+    create_account, verify_email, install_driver
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
 from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
@@ -26,16 +27,9 @@ except ImportError:
     logging.warning('Coloredlogs is not installed. Install it with "pip install coloredlogs" to get cool logs!')
 
 # Set config variables
-# TODO: Make this better
-maker.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
-maker.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
-maker.MICRO_DELAY_S = MICRO_DELAY_S
-protector.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
-protector.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
-protector.MICRO_DELAY_S = MICRO_DELAY_S
-verifier.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
-verifier.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
-verifier.MICRO_DELAY_S = MICRO_DELAY_S
+generator_config.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
+generator_config.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
+generator_config.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
     # Install firefox driver binary

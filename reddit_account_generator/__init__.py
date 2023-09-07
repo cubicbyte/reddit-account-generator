@@ -7,10 +7,9 @@ _logger.info('Downloading ffmpeg binary...')
 static_ffmpeg.add_paths()
 del static_ffmpeg
 
-from .maker import create_account
-from .protector import protect_account
-from .verifier import verify_email
-
+from ._maker import create_account
+from ._verifier import verify_email
+from ._protector import protect_account
 
 def install_driver():
     """Install firefox driver binary."""

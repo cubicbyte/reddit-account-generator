@@ -2,18 +2,18 @@ import time
 import logging
 
 from tempmail import EMail
-from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import TimeoutException, WebDriverException, \
+    NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium_recaptcha_solver import RecaptchaSolver, RecaptchaException
 
 from .utils import setup_firefox_driver, try_to_click, generate_password, generate_username
-from .exceptions import *
+from .config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
+from .exceptions import IPCooldownException, SessionExpiredException, UsernameTakenException, \
+    UsernameLengthException, UsernameSymbolsException, PasswordLengthException
 
-PAGE_LOAD_TIMEOUT_S = 60
-DRIVER_TIMEOUT_S = 60
-MICRO_DELAY_S = 1
 
 _logger = logging.getLogger(__name__)
 
