@@ -15,7 +15,6 @@ del static_ffmpeg
 
 from ._maker import create_account
 from ._verifier import verify_email
-from ._protector import protect_account
 
 def install_driver():
     """Install firefox driver binary."""
