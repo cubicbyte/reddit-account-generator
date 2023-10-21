@@ -5,12 +5,67 @@ import time
 import random
 import string
 import secrets
+import zipfile
+import tempfile
+from dataclasses import dataclass
 
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
+
+
+@dataclass
+class Proxy:
+    """
+    Proxy dataclass
+    """
+    host: str
+    port: int
+    scheme: str = 'http'
+    user: str | None = None
+    password: str | None = None
+
+    def to_dict(self) -> dict[str, str]:
+        """
+        Convert proxy to dict for requests library
+        """
+        return {
+            'http': str(self),
+            'https': str(self),
+        }
+
+    def to_string(self) -> str:
+        """
+        Get proxy string representation
+        """
+        if self.password is None:
+            return f'{self.scheme}://{self.host}:{self.port}'
+        return f'{self.scheme}://{self.user}:{self.password}@{self.host}:{self.port}'
+
+    @property
+    def auth(self) -> tuple[str, str] | None:
+        """
+        Get proxy auth tuple
+        """
+        if self.user is None or self.password is None:
+            return None
+        return self.user, self.password
+
+    @classmethod
+    def from_str(cls, proxy: str) -> 'Proxy':
+        """
+        Create proxy from string
+
+        :param proxy: Proxy string
+        :return: Proxy object
+        """
+        scheme, host, port, user, password = parse_proxy(proxy)
+        return cls(host, port, scheme, user, password)
+
+    def __str__(self) -> str:
+        return self.to_string()
 
 
 def generate_username() -> str:
@@ -115,3 +170,34 @@ def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int =
             retries += 1
             time.sleep(delay)
     raise TimeoutException(f'Could not click element after {max_tries} tries.')
+
+
+def parse_proxy(proxy: str) -> Proxy:
+    """
+    Parse proxy string
+
+    Formats:
+    * scheme://USER:PASS@HOST:PORT
+    * scheme://HOST:PORT
+    * HOST:PORT (default scheme is http)
+
+    Returns: :class:`Proxy` object
+    """
+
+    # Get scheme
+    if '://' in proxy:
+        scheme, proxy = proxy.split('://')
+    else:
+        scheme = 'http'
+
+    # Get user and password
+    if '@' in proxy:
+        auth, proxy = proxy.split('@')
+        user, password = auth.split(':')
+    else:
+        user, password = None, None
+
+    host, port = proxy.split(':')
+    port = int(port)
+
+    return Proxy(host, port, scheme, user, password)

@@ -54,7 +54,7 @@ is_proxies_loaded = len(proxies) != 0
 # Define proxy manager: Tor, Proxies file or local IP
 if is_tor_running:
     logger.info('Tor is running. Connecting to Tor...')
-    proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
+    proxy_manager = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
     logger.info('Connected to Tor.')
     logger.warning('You will probably see a lot of RecaptchaException, but it\'s ok.')
 
@@ -62,11 +62,11 @@ else:
     logger.info('Tor is not running.')
 
     if is_proxies_loaded:
-        proxy = DefaultProxy(proxies)
+        proxy_manager = DefaultProxy(proxies)
         logging.info('Loaded %s proxies.', len(proxies))
 
     else:
-        proxy = EmptyProxy()
+        proxy_manager = EmptyProxy()
         logger.warning('No proxies loaded. Using local IP address.')
         logger.warning('Tor is not running. It is recommended to run Tor to avoid IP cooldowns.\n\n' +
                         'Please, run command "python run_tor.py" or add proxies to file %s\n', PROXIES_FILE)
@@ -80,12 +80,12 @@ try:
     for i in range(num_of_accounts):
         # Check if we need to wait for IP cooldown
         delta = time.time() - latest_account_created_timestamp
-        if isinstance(proxy, EmptyProxy) and delta < IP_COOLDOWN_S:
+        if isinstance(proxy_manager, EmptyProxy) and delta < IP_COOLDOWN_S:
             logger.warning(f'IP cooldown. Waiting {(IP_COOLDOWN_S - delta) / 60 :.1f} minutes. Use tor/proxies to avoid this.')
             time.sleep(IP_COOLDOWN_S - delta)
 
         logger.info('Creating account (%s/%s)', i+1, num_of_accounts)
-        proxies = proxy.get_next()
+        proxy = proxy_manager.get_next()
 
         # Create account
         retries = 0
@@ -93,7 +93,7 @@ try:
             try:
                 email, username, password = create_account(
                     email=EMAIL or None,
-                    proxies=proxies,
+                    proxy=proxy,
                     hide_browser=HIDE_BROWSER
                 )
                 latest_account_created_timestamp = time.time()
@@ -107,7 +107,7 @@ try:
 
             except NetworkException as e:
                 # If we are using local IP address, we can't bypass IP cooldown
-                if isinstance(proxy, EmptyProxy) and (
+                if isinstance(proxy_manager, EmptyProxy) and (
                         isinstance(e, IPCooldownException)):
                     logger.error(e)
                     logger.error(f'IP cooldown. Trying again in {e.cooldown}. Use tor/proxies to avoid this.')
@@ -115,7 +115,7 @@ try:
                     continue
 
                 logger.error('Network failed with %s.', e.__class__.__name__)
-                proxies = proxy.get_next()
+                proxy = proxy_manager.get_next()
                 logger.info('Using next proxy: %s', proxy)
 
             except NoSuchWindowException as e:
