@@ -12,6 +12,7 @@ from dataclasses import dataclass
 
 import requests
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
@@ -117,6 +118,8 @@ def check_tor_running(ip: str, port: int) -> bool:
 def setup_chrome_driver(proxy: Proxy | None = None, hide_browser: bool = True) -> webdriver.Chrome:
     install_chrome_driver()
 
+    service = ChromeService(executable_path=chrome_driver_path)
+
     options = webdriver.ChromeOptions()
     options.add_argument('--lang=en')  # Not sure if this line is needed
     options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
@@ -128,7 +131,7 @@ def setup_chrome_driver(proxy: Proxy | None = None, hide_browser: bool = True) -
     if proxy is not None:
         setup_proxy(options, proxy)
 
-    return webdriver.Chrome(options=options)
+    return webdriver.Chrome(options=options, service=service)
 
 
 def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
