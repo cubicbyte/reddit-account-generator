@@ -45,29 +45,30 @@ def save_account(email: str, username: str, password: str):
         f.write(f'{email};{username};{password}\n')
 
 
-# Check for tor and proxies
-logger.info('Checking if tor is running...')
-is_tor_running = check_tor_running(TOR_IP, TOR_SOCKS5_PORT)
+# Define proxy manager: Tor, Proxies file or local IP
+
+# Check if proxies file contains proxies
 proxies = load_proxies(PROXIES_FILE)
 is_proxies_loaded = len(proxies) != 0
 
-# Define proxy manager: Tor, Proxies file or local IP
-if is_tor_running:
-    logger.info('Tor is running. Connecting to Tor...')
-    proxy_manager = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
-    logger.info('Connected to Tor.')
+if is_proxies_loaded:
+    proxy_manager = DefaultProxy(proxies)
+    logging.info('Loaded %s proxies.', len(proxies))
 
 else:
-    logger.info('Tor is not running.')
+    # Try to use Tor
+    logger.info('Checking if tor is running...')
 
-    if is_proxies_loaded:
-        proxy_manager = DefaultProxy(proxies)
-        logging.info('Loaded %s proxies.', len(proxies))
+    if check_tor_running(TOR_IP, TOR_SOCKS5_PORT):
+        logger.info('Tor is running. Connecting to Tor...')
+        proxy_manager = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
+        logger.info('Connected to Tor.')
 
     else:
+        # Use local IP address
         proxy_manager = EmptyProxy()
-        logger.warning('No proxies loaded. Using local IP address.')
-        logger.warning('Tor is not running. It is recommended to run Tor to avoid IP cooldowns.\n\n' +
+        logger.warning('Tor is not running. Using local IP address.')
+        logger.warning('It is recommended to use proxies or Tor to avoid IP cooldowns.\n\n' +
                         'Please, run command "python run_tor.py" or add proxies to file %s\n', PROXIES_FILE)
 
 
@@ -97,6 +98,9 @@ try:
                 )
                 latest_account_created_timestamp = time.time()
                 break
+
+            except TimeoutError as e:
+                logger.error(f'Timeout error: {e}\nProbably email message was not received. Trying again...')
 
             except UsernameTakenException:
                 logger.error('Username %s taken. Trying again.', username)
