@@ -160,7 +160,7 @@ def create_account(email: str | None = None, username: str | None = None, passwo
             raise Exception(submit_err.text)
 
         # Wait until button is pressed
-        time.sleep(MICRO_DELAY_S)
+        time.sleep(MICRO_DELAY_S * 3)
 
         # Account created!
 

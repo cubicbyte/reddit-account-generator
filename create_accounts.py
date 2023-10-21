@@ -56,7 +56,6 @@ if is_tor_running:
     logger.info('Tor is running. Connecting to Tor...')
     proxy_manager = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
     logger.info('Connected to Tor.')
-    logger.warning('You will probably see a lot of RecaptchaException, but it\'s ok.')
 
 else:
     logger.info('Tor is not running.')
@@ -115,6 +114,9 @@ try:
                     continue
 
                 logger.error('Network failed with %s.', e.__class__.__name__)
+                if isinstance(e, IPCooldownException) and isinstance(proxy_manager, TorProxy):
+                    logger.info('If you\'re using tor proxy, it will take a few of RecaptchaException per 1 account.')
+
                 proxy = proxy_manager.get_next()
                 logger.info('Using next proxy: %s', proxy)
 
