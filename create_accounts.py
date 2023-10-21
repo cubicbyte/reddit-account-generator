@@ -34,7 +34,7 @@ generator_config.MICRO_DELAY_S = MICRO_DELAY_S
 
 if BUILTIN_DRIVER:
     # Install firefox driver binary
-    logger.info('Installing firefox driver...')
+    logger.info('Installing chrome driver...')
     install_driver()
 
 

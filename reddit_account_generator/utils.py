@@ -110,53 +110,97 @@ def check_tor_running(ip: str, port: int) -> bool:
         return False
 
 
-def setup_chrome_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Chrome:
+def setup_chrome_driver(proxy: Proxy | None = None, hide_browser: bool = True) -> webdriver.Chrome:
     options = webdriver.ChromeOptions()
     options.add_argument('--lang=en-US')
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Disable logging
 
     if hide_browser:
         options.add_argument('--headless')
 
-    # Set up proxies if available
-    if proxies is not None:
-        if 'http' in proxies:
-            options.add_argument(f'--proxy-server=http://{proxies["http"]}')
-        if 'https' in proxies:
-            options.add_argument(f'--proxy-server=https://{proxies["https"]}')
-        if 'socks' in proxies:
-            # Only SOCKS5 is supported
-            options.add_argument(f'--proxy-server=socks5://{proxies["socks"]}')
+    if proxy is not None:
+        setup_proxy(options, proxy)
 
-    return webdriver.Chrome(options=options, service_log_path=os.devnull)
+    return webdriver.Chrome(options=options)
 
 
-def setup_firefox_driver(proxies: dict[str, str] | None = None, hide_browser: bool = True) -> webdriver.Firefox:
-    options = webdriver.FirefoxOptions()
-    options.set_preference('intl.accept_languages', 'en-US')
+def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
+    """
+    Set up proxy for Chrome webdriver
 
-    if hide_browser:
-        options.add_argument('--headless')
+    :param opts: :class:`selenium.webdriver.ChromeOptions` object
+    :param proxy: Proxy tuple (scheme, host, port)
+    :param auth: Proxy auth tuple (user, password)
+    """
 
-    # Set up proxies if available
-    if proxies is not None:
-        options.set_preference('network.proxy.type', 1)
+    if proxy.auth is None:
+        options.add_argument(f'--proxy-server={proxy.to_string()}')
+        return
 
-        if 'http' in proxies:
-            http_ip, http_port = proxies['http'].split(':')
-            options.set_preference('network.proxy.http', http_ip)
-            options.set_preference('network.proxy.http_port', int(http_port))
-        if 'https' in proxies:
-            https_ip, https_port = proxies['https'].split(':')
-            options.set_preference('network.proxy.ssl', https_ip)
-            options.set_preference('network.proxy.ssl_port', int(https_port))
-        if 'socks' in proxies:
-            # Only SOCKS5 is supported
-            socks_ip, socks_port = proxies['socks'].split(':')
-            options.set_preference('network.proxy.socks', socks_ip)
-            options.set_preference('network.proxy.socks_port', int(socks_port))
-            options.set_preference('network.proxy.socks_remote_dns', False)
+    user, password = proxy.auth
 
-    return webdriver.Firefox(options=options)
+    # Evil hacks to set up proxy with auth
+    # https://stackoverflow.com/questions/55582136/how-to-set-proxy-with-authentication-in-selenium-chromedriver-python 
+    manifest_json = '''
+    {
+        "version": "1.0.0",
+        "manifest_version": 2,
+        "name": "Chrome Proxy",
+        "permissions": [
+            "proxy",
+            "tabs",
+            "unlimitedStorage",
+            "storage",
+            "<all_urls>",
+            "webRequest",
+            "webRequestBlocking"
+        ],
+        "background": {
+            "scripts": ["background.js"]
+        },
+        "minimum_chrome_version":"22.0.0"
+    }
+    '''
+
+    background_js = '''
+    var config = {
+            mode: "fixed_servers",
+            rules: {
+            singleProxy: {
+                scheme: "%s",
+                host: "%s",
+                port: parseInt(%s)
+            },
+            bypassList: ["localhost"]
+            }
+        };
+
+    chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
+
+    function callbackFn(details) {
+        return {
+            authCredentials: {
+                username: "%s",
+                password: "%s"
+            }
+        };
+    }
+
+    chrome.webRequest.onAuthRequired.addListener(
+                callbackFn,
+                {urls: ["<all_urls>"]},
+                ['blocking']
+    );
+    ''' % (proxy.scheme, proxy.host, proxy.port, user, password)
+
+    with tempfile.NamedTemporaryFile('w', suffix='.zip') as fp:
+        plugin_file = fp.name
+
+    with zipfile.ZipFile(plugin_file, 'w') as zp:
+        zp.writestr('manifest.json', manifest_json)
+        zp.writestr('background.js', background_js)
+
+    options.add_extension(plugin_file)
 
 
 def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int = 20) -> bool:

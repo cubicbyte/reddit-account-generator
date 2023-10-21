@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium_recaptcha_solver import RecaptchaSolver, RecaptchaException
 
-from .utils import setup_firefox_driver, try_to_click, generate_password, generate_username
+from .utils import setup_chrome_driver, try_to_click, generate_password, generate_username, Proxy
 from .config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
 from .exceptions import IPCooldownException, SessionExpiredException, UsernameTakenException, \
     UsernameLengthException, UsernameSymbolsException, PasswordLengthException
@@ -21,19 +21,19 @@ logger = logging.getLogger('reddit_account_generator')
 
 
 def create_account(email: str | None = None, username: str | None = None, password: str | None = None,
-                   proxies: dict[str, str] | None = None, hide_browser: bool = True) -> tuple[str, str, str]:
+                   proxy: Proxy | None = None, hide_browser: bool = True) -> tuple[str, str, str]:
     """Create a Reddit account.
 
     :param email: Email address to use. If None, a random email will be generated.
     :param username: Username to use. If None, a random username will be generated.
     :param password: Password to use. If None, a random password will be generated.
-    :param proxies: Proxies to use: {'https': '<ip:port>'}
+    :param proxy: Proxy to use
     :param hide_browser: Hide browser window
     :return: Tuple of email, username and password
     """
 
     logger.info('Creating reddit account')
-    driver = setup_firefox_driver(proxies, hide_browser)
+    driver = setup_chrome_driver(proxy, hide_browser)
 
     if PAGE_LOAD_TIMEOUT_S is not None:
         driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_S)
