@@ -93,9 +93,6 @@ try:
                 latest_account_created_timestamp = time.time()
                 break
 
-            except TimeoutError as e:
-                logger.error(f'Timeout error: {e}\nProbably email message was not received. Trying again...')
-
             except UsernameTakenException:
                 logger.error('Username %s taken. Trying again.', username)
 
@@ -144,6 +141,11 @@ try:
                     verify_email(email)
                     logger.info('Email verified!\n')
                     break
+
+                except TimeoutError as e:
+                    logger.error(f'Timeout error: {e}\nProbably email message was not received. Creating next account...')
+                    break
+
                 except WebDriverException as e:
                     logger.error(e)
                     logger.error('An error occurred during email verification. Trying again... [%s/%s]', i+1, MAX_RETRIES)
