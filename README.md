@@ -120,37 +120,39 @@ pip install reddit-account-generator --upgrade
 ## Package Usage Example
 
 ```python
-from reddit_account_generator import create_account, protect_account, install_driver
+from reddit_account_generator import create_account, verify_email
 
-# Install browser driver
-install_driver()
+# Create account
+email, username, password = create_account()
+
+# Verify email
+verify_email(email)
+
+# Done!
+print(f'Email: {email}\nUsername: {username}\nPassword: {password}')
+```
+
+Advanced usage:
+
+```python
+from reddit_account_generator import create_account
+from reddit_account_generator.proxies import DefaultProxy
 
 email = 'your-email@gmail.com'
 username = 'PolishCardinal69'
 password = '31vV3X1zy8YP'
 
-# Create account
-create_account(email, username, password)
+# Load proxies from file
+with open('proxies.txt', 'r') as f:
+    proxy = DefaultProxy(f.read().splitlines())
 
-# Protect account from being suspended of being a bot
-protect_account(username, password)
+# Create account using proxy
+create_account(email, username, password, proxy=proxy.get_next())
+
+# Verify email (proxy is not required)
+verify_email(email)
 
 # Done!
-```
-
-Using proxy:
-
-```python
-from reddit_account_generator import create_account, protect_account, install_driver
-from reddit_account_generator.proxies import TorProxy
-
-email = 'your-email@gmail.com'
-# Username and password will be generated automatically
-
-proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
-
-uname, pwd = create_account(email, proxy=proxy.get_next())
-protect_account(username=uname, password=pwd)  # Proxy not required
 ```
 
 
@@ -160,8 +162,11 @@ protect_account(username=uname, password=pwd)  # Proxy not required
 - [selenium](https://pypi.org/project/selenium/)
 - [selenium-recaptcha-solver](https://pypi.org/project/selenium-recaptcha-solver/)
 - [random-username](https://pypi.org/project/random-username/)
-- [webdriverdownloader](https://pypi.org/project/webdriverdownloader/)
+- [webdriver-manager](https://pypi.org/project/webdriver-manager/)
 - [stem](https://pypi.org/project/stem/)
+- [static-ffmpeg](https://pypi.org/project/static-ffmpeg/)
+- [tempmail-python](https://pypi.org/project/tempmail-python/)
+- [beautifulsoup4](https://pypi.org/project/beautifulsoup4/)
 - [coloredlogs](https://pypi.org/project/coloredlogs/) *optional
 
 ## Contributing
@@ -174,4 +179,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-**Disclaimer:** Please use this script responsibly and abide by Reddit's terms of service. Automated account creation might be against Reddit's policies, and using this script could potentially lead to consequences. The creators and maintainers of this project are not responsible for any misuse or damages caused by its usage.
+**Disclaimer:** Please use this script responsibly and abide by Reddit's terms of service. Automated account creation might be against Reddit's policies, and using this script could potentially lead to consequences. The creator and maintainers of this project are not responsible for any misuse or damages caused by its usage.
