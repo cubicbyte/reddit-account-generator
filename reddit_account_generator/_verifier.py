@@ -5,13 +5,14 @@ import logging
 import requests
 from tempmail import EMail
 
-from .config import USER_AGENT
+from .config import USER_AGENT, EMAIL_MESSAGE_WAIT_TIMEOUT_S
 from .exceptions import EmailVerificationException
+from .utils import Proxy
 
 logger = logging.getLogger('reddit_account_generator')
 
 
-def verify_email(email: str, proxies: dict[str, str] | None = None):
+def verify_email(email: str, proxy: Proxy | None = None):
     """Verify reddit account email on 1secmail provider.
 
     Proxies are not needed for this step.
@@ -22,13 +23,21 @@ def verify_email(email: str, proxies: dict[str, str] | None = None):
     logger.info(f'Verifying reddit account email {email}')
 
     # Get verification link
-    link = get_verification_link(email, proxies=proxies)
+    link = get_verification_link(email, proxy=Proxy)
     direct_link = get_direct_verification_link(link)
+
+    # Get proxy
+    if proxy is not None:
+        proxies = proxy.to_dict()
+        auth = proxy.auth
+    else:
+        proxies = None
+        auth = None
 
     logger.debug('Verifying email')
     resp = requests.post(direct_link, headers={
         'User-Agent': USER_AGENT
-    }, proxies=proxies)
+    }, proxies=proxies, auth=auth)
 
     if resp.status_code != 200:
         if 'EMAIL_ALREADY_VERIFIED' not in resp.text:
@@ -37,15 +46,25 @@ def verify_email(email: str, proxies: dict[str, str] | None = None):
         logger.warning('Email is already verified')
 
 
-def get_verification_link(email: str, proxies: dict[str, str] | None = None) -> str:
+def get_verification_link(email: str, proxy: Proxy | None = None) -> str:
     try:
         email_ = EMail(email)
     except ValueError:
         raise ValueError('Verification of this email is not supported.')
 
-    logger.debug('Waiting for email...')
+    # Setup proxy
+    if proxy is not None:
+        proxies = proxy.to_dict()
+        auth = proxy.auth
+    else:
+        proxies = None
+        auth = None
+
     email_._session.proxies = proxies
-    msg = email_.wait_for_message(filter=lambda m: 'reddit' in m.subject.lower())
+    email_._session.auth = auth
+
+    logger.debug('Waiting for email...')
+    msg = email_.wait_for_message(timeout=EMAIL_MESSAGE_WAIT_TIMEOUT_S)
 
     # Get link
     start = msg.body.index('https://www.reddit.com/verification/')

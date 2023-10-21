@@ -56,13 +56,12 @@ class Proxy:
     @classmethod
     def from_str(cls, proxy: str) -> 'Proxy':
         """
-        Create proxy from string
+        Create proxy from string. Alias for :func:`parse_proxy`
 
         :param proxy: Proxy string
         :return: Proxy object
         """
-        scheme, host, port, user, password = parse_proxy(proxy)
-        return cls(host, port, scheme, user, password)
+        return parse_proxy(proxy)
 
     def __str__(self) -> str:
         return self.to_string()
