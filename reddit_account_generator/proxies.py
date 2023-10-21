@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 from stem import Signal
 from stem.control import Controller
 
+from .utils import Proxy
+
 
 class ProxyManager(ABC):
     """
@@ -15,7 +17,10 @@ class ProxyManager(ABC):
     """
 
     @abstractmethod
-    def get_next(self) -> dict[str, str] | None:
+    def get_next(self) -> Proxy | None:
+        """
+        Get next proxy
+        """
         ...
 
 
@@ -27,9 +32,7 @@ class DefaultProxy(ProxyManager):
         self.i = 0
 
     def get_next(self):
-        proxy = {
-            'socks': self.proxies[self.i]
-        }
+        proxy = Proxy.from_str(self.proxies[self.i])
 
         self.i += 1
         if self.i >= len(self.proxies):
@@ -55,15 +58,12 @@ class TorProxy(ProxyManager):
         self.controller.authenticate(self.password)
 
     @property
-    def proxy(self) -> dict[str, str]:
-        return {
-            'http': f'{self.ip}:{self.port}',
-            'https': f'{self.ip}:{self.port}',
-        }
+    def proxy(self) -> Proxy:
+        return Proxy(self.ip, self.port)
 
     def get_next(self):
+        time.sleep(self.delay)  # TODO: use smart delay based on timestamp
         self.controller.signal(Signal.NEWNYM)
-        time.sleep(self.delay)
 
         return self.proxy
 

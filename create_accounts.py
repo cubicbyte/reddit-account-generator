@@ -3,8 +3,7 @@ import logging
 
 from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
-from reddit_account_generator import config as generator_config, \
-    create_account, verify_email, install_driver
+from reddit_account_generator import config as generator_config, create_account, verify_email
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
 from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
@@ -16,7 +15,7 @@ num_of_accounts = int(input('How many accounts do you want to make? '))
 
 # Set logging
 logger = logging.getLogger('script')
-logging.getLogger('webdriverdownloader').setLevel(logging.WARNING)
+logging.getLogger('WDM').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
 logging.getLogger('selenium').setLevel(logging.WARNING)
 
@@ -32,11 +31,6 @@ generator_config.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
 generator_config.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
 generator_config.MICRO_DELAY_S = MICRO_DELAY_S
 
-if BUILTIN_DRIVER:
-    # Install firefox driver binary
-    logger.info('Installing firefox driver...')
-    install_driver()
-
 
 def save_account(email: str, username: str, password: str):
     """Save account credentials to a file."""
@@ -45,30 +39,30 @@ def save_account(email: str, username: str, password: str):
         f.write(f'{email};{username};{password}\n')
 
 
-# Check for tor and proxies
-logger.info('Checking if tor is running...')
-is_tor_running = check_tor_running(TOR_IP, TOR_SOCKS5_PORT)
+# Define proxy manager: Tor, Proxies file or local IP
+
+# Check if proxies file contains proxies
 proxies = load_proxies(PROXIES_FILE)
 is_proxies_loaded = len(proxies) != 0
 
-# Define proxy manager: Tor, Proxies file or local IP
-if is_tor_running:
-    logger.info('Tor is running. Connecting to Tor...')
-    proxy = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
-    logger.info('Connected to Tor.')
-    logger.warning('You will probably see a lot of RecaptchaException, but it\'s ok.')
+if is_proxies_loaded:
+    proxy_manager = DefaultProxy(proxies)
+    logging.info('Loaded %s proxies.', len(proxies))
 
 else:
-    logger.info('Tor is not running.')
+    # Try to use Tor
+    logger.info('Checking if tor is running...')
 
-    if is_proxies_loaded:
-        proxy = DefaultProxy(proxies)
-        logging.info('Loaded %s proxies.', len(proxies))
+    if check_tor_running(TOR_IP, TOR_SOCKS5_PORT):
+        logger.info('Tor is running. Connecting to Tor...')
+        proxy_manager = TorProxy(TOR_IP, TOR_PORT, TOR_PASSWORD, TOR_CONTROL_PORT, TOR_DELAY)
+        logger.info('Connected to Tor.')
 
     else:
-        proxy = EmptyProxy()
-        logger.warning('No proxies loaded. Using local IP address.')
-        logger.warning('Tor is not running. It is recommended to run Tor to avoid IP cooldowns.\n\n' +
+        # Use local IP address
+        proxy_manager = EmptyProxy()
+        logger.warning('Tor is not running. Using local IP address.')
+        logger.warning('It is recommended to use proxies or Tor to avoid IP cooldowns.\n\n' +
                         'Please, run command "python run_tor.py" or add proxies to file %s\n', PROXIES_FILE)
 
 
@@ -80,12 +74,12 @@ try:
     for i in range(num_of_accounts):
         # Check if we need to wait for IP cooldown
         delta = time.time() - latest_account_created_timestamp
-        if isinstance(proxy, EmptyProxy) and delta < IP_COOLDOWN_S:
+        if isinstance(proxy_manager, EmptyProxy) and delta < IP_COOLDOWN_S:
             logger.warning(f'IP cooldown. Waiting {(IP_COOLDOWN_S - delta) / 60 :.1f} minutes. Use tor/proxies to avoid this.')
             time.sleep(IP_COOLDOWN_S - delta)
 
         logger.info('Creating account (%s/%s)', i+1, num_of_accounts)
-        proxies = proxy.get_next()
+        proxy = proxy_manager.get_next()
 
         # Create account
         retries = 0
@@ -93,11 +87,14 @@ try:
             try:
                 email, username, password = create_account(
                     email=EMAIL or None,
-                    proxies=proxies,
+                    proxy=proxy,
                     hide_browser=HIDE_BROWSER
                 )
                 latest_account_created_timestamp = time.time()
                 break
+
+            except TimeoutError as e:
+                logger.error(f'Timeout error: {e}\nProbably email message was not received. Trying again...')
 
             except UsernameTakenException:
                 logger.error('Username %s taken. Trying again.', username)
@@ -107,7 +104,7 @@ try:
 
             except NetworkException as e:
                 # If we are using local IP address, we can't bypass IP cooldown
-                if isinstance(proxy, EmptyProxy) and (
+                if isinstance(proxy_manager, EmptyProxy) and (
                         isinstance(e, IPCooldownException)):
                     logger.error(e)
                     logger.error(f'IP cooldown. Trying again in {e.cooldown}. Use tor/proxies to avoid this.')
@@ -115,7 +112,10 @@ try:
                     continue
 
                 logger.error('Network failed with %s.', e.__class__.__name__)
-                proxies = proxy.get_next()
+                if isinstance(e, IPCooldownException) and isinstance(proxy_manager, TorProxy):
+                    logger.info('If you\'re using tor proxy, it will take a few of RecaptchaException per 1 account.')
+
+                proxy = proxy_manager.get_next()
                 logger.info('Using next proxy: %s', proxy)
 
             except NoSuchWindowException as e:
