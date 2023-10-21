@@ -3,8 +3,7 @@ import logging
 
 from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 
-from reddit_account_generator import config as generator_config, \
-    create_account, verify_email, install_driver
+from reddit_account_generator import config as generator_config, create_account, verify_email
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
 from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
@@ -16,7 +15,7 @@ num_of_accounts = int(input('How many accounts do you want to make? '))
 
 # Set logging
 logger = logging.getLogger('script')
-logging.getLogger('webdriverdownloader').setLevel(logging.WARNING)
+logging.getLogger('WDM').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
 logging.getLogger('selenium').setLevel(logging.WARNING)
 
@@ -31,11 +30,6 @@ except ImportError:
 generator_config.PAGE_LOAD_TIMEOUT_S = PAGE_LOAD_TIMEOUT_S
 generator_config.DRIVER_TIMEOUT_S = DRIVER_TIMEOUT_S
 generator_config.MICRO_DELAY_S = MICRO_DELAY_S
-
-if BUILTIN_DRIVER:
-    # Install firefox driver binary
-    logger.info('Installing chrome driver...')
-    install_driver()
 
 
 def save_account(email: str, username: str, password: str):

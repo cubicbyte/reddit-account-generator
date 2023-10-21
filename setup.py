@@ -29,7 +29,7 @@ setup(
         'selenium >=4.7.0, <=4.9.1',
         'selenium-recaptcha-solver >=1.4.0, <=1.9.0',
         'random-username >=1.0.0, <=1.0.2',
-        'webdriverdownloader >=1.0.0, <=1.1.0.3',
+        'webdriver-manager~=4.0.1',
         'stem >=1.8.0, <=1.8.2',
         'static-ffmpeg >=2.3, <=2.5',
         'tempmail-python==2.3.0',

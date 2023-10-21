@@ -4,6 +4,7 @@ import os
 import time
 import random
 import string
+import logging
 import secrets
 import zipfile
 import tempfile
@@ -14,6 +15,10 @@ from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
+from webdriver_manager.chrome import ChromeDriverManager
+
+logger = logging.getLogger('reddit_account_generator')
+chrome_driver_path = None
 
 
 @dataclass
@@ -110,6 +115,8 @@ def check_tor_running(ip: str, port: int) -> bool:
 
 
 def setup_chrome_driver(proxy: Proxy | None = None, hide_browser: bool = True) -> webdriver.Chrome:
+    install_chrome_driver()
+
     options = webdriver.ChromeOptions()
     options.add_argument('--lang=en-US')
     options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Disable logging
@@ -244,3 +251,17 @@ def parse_proxy(proxy: str) -> Proxy:
     port = int(port)
 
     return Proxy(host, port, scheme, user, password)
+
+
+def install_chrome_driver():
+    """
+    Download and install chrome driver
+    """
+    global chrome_driver_path
+    if chrome_driver_path is not None:
+        return
+    
+    # Download driver
+    logger.info('Downloading chrome driver...')
+    chrome_driver_path = ChromeDriverManager().install()
+    logger.debug('Chrome driver downloaded to %s', chrome_driver_path)

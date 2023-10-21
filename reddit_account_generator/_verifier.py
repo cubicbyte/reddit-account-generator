@@ -23,7 +23,7 @@ def verify_email(email: str, proxy: Proxy | None = None):
     logger.info(f'Verifying reddit account email {email}')
 
     # Get verification link
-    link = get_verification_link(email, proxy=Proxy)
+    link = get_verification_link(email, proxy=proxy)
     direct_link = get_direct_verification_link(link)
 
     # Get proxy
