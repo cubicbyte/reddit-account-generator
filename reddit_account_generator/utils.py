@@ -118,7 +118,8 @@ def setup_chrome_driver(proxy: Proxy | None = None, hide_browser: bool = True) -
     install_chrome_driver()
 
     options = webdriver.ChromeOptions()
-    options.add_argument('--lang=en-US')
+    options.add_argument('--lang=en')  # Not sure if this line is needed
+    options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
     options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Disable logging
 
     if hide_browser:
