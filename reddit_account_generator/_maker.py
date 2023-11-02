@@ -2,6 +2,7 @@
 
 import time
 import logging
+from typing import Optional, Tuple
 
 from tempmail import EMail
 from selenium.common.exceptions import TimeoutException, WebDriverException, \
@@ -20,8 +21,8 @@ from .exceptions import IPCooldownException, SessionExpiredException, UsernameTa
 logger = logging.getLogger('reddit_account_generator')
 
 
-def create_account(email: str | None = None, username: str | None = None, password: str | None = None,
-                   proxy: Proxy | None = None, hide_browser: bool = True) -> tuple[str, str, str]:
+def create_account(email: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None,
+                   proxy: Optional[Proxy] = None, hide_browser: bool = True) -> Tuple[str, str, str]:
     """Create a Reddit account.
 
     :param email: Email address to use. If None, a random email will be generated.

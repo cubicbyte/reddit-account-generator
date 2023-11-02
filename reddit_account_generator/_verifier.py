@@ -1,6 +1,7 @@
 """Module for verifying reddit account email"""
 
 import logging
+from typing import Optional
 
 import requests
 from tempmail import EMail
@@ -12,7 +13,7 @@ from .utils import Proxy
 logger = logging.getLogger('reddit_account_generator')
 
 
-def verify_email(email: str, proxy: Proxy | None = None):
+def verify_email(email: str, proxy: Optional[Proxy] = None):
     """Verify reddit account email on 1secmail provider.
 
     Proxies are not needed for this step.
@@ -46,7 +47,7 @@ def verify_email(email: str, proxy: Proxy | None = None):
         logger.warning('Email is already verified')
 
 
-def get_verification_link(email: str, proxy: Proxy | None = None) -> str:
+def get_verification_link(email: str, proxy: Optional[Proxy] = None) -> str:
     try:
         email_ = EMail(email)
     except ValueError:

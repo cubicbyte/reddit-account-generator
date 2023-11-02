@@ -2,6 +2,7 @@
 
 import time
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from stem import Signal
 from stem.control import Controller
@@ -17,7 +18,7 @@ class ProxyManager(ABC):
     """
 
     @abstractmethod
-    def get_next(self) -> Proxy | None:
+    def get_next(self) -> Optional[Proxy]:
         """
         Get next proxy
         """

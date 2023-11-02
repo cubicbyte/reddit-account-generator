@@ -8,6 +8,7 @@ import logging
 import secrets
 import zipfile
 import tempfile
+from typing import Optional, Dict, Tuple, Union
 from dataclasses import dataclass
 
 import requests
@@ -30,10 +31,10 @@ class Proxy:
     host: str
     port: int
     scheme: str = 'http'
-    user: str | None = None
-    password: str | None = None
+    user: Optional[str] = None
+    password: Optional[str] = None
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> Dict[str, str]:
         """
         Convert proxy to dict for requests library
         """
@@ -51,7 +52,7 @@ class Proxy:
         return f'{self.scheme}://{self.user}:{self.password}@{self.host}:{self.port}'
 
     @property
-    def auth(self) -> tuple[str, str] | None:
+    def auth(self) -> Optional[Tuple[str, str]]:
         """
         Get proxy auth tuple
         """
@@ -115,7 +116,7 @@ def check_tor_running(ip: str, port: int) -> bool:
         return False
 
 
-def setup_chrome_driver(proxy: Proxy | None = None, hide_browser: bool = True) -> webdriver.Chrome:
+def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True) -> webdriver.Chrome:
     install_chrome_driver()
 
     service = ChromeService(executable_path=chrome_driver_path)
@@ -213,7 +214,7 @@ def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
     options.add_extension(plugin_file)
 
 
-def try_to_click(element: WebElement, delay: int | float = 0.5, max_tries: int = 20) -> bool:
+def try_to_click(element: WebElement, delay: Union[int, float] = 0.5, max_tries: int = 20) -> bool:
     """Try to click an element multiple times."""
     retries = 0
     while retries < max_tries:
