@@ -2,6 +2,7 @@
 
 import os
 import time
+import shutil
 import random
 import string
 import logging
@@ -18,6 +19,8 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
 from webdriver_manager.chrome import ChromeDriverManager
+
+from .exceptions import NoSuchDriverException
 
 logger = logging.getLogger('reddit_account_generator')
 chrome_driver_path = None
@@ -262,10 +265,17 @@ def install_chrome_driver():
     """
     Download and install chrome driver
     """
+    # Return if already installed
     global chrome_driver_path
     if chrome_driver_path is not None:
         return
     
+    # Try to find in PATH
+    path = shutil.which('chromedriver')
+    if path is not None:
+        chrome_driver_path = path
+        return
+
     # Download driver
     logger.info('Downloading chrome driver...')
 
