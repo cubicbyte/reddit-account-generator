@@ -268,5 +268,10 @@ def install_chrome_driver():
     
     # Download driver
     logger.info('Downloading chrome driver...')
-    chrome_driver_path = ChromeDriverManager().install()
+
+    try:
+        chrome_driver_path = ChromeDriverManager().install()
+    except AttributeError:
+        raise NoSuchDriverException('Failed to download chrome driver for your browser version. Make sure that Chrome is installed.')
+
     logger.debug('Chrome driver downloaded to %s', chrome_driver_path)
