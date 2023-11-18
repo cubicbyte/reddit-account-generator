@@ -15,7 +15,7 @@ from dataclasses import dataclass
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.common.exceptions import TimeoutException, SessionNotCreatedException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
 from webdriver_manager.chrome import ChromeDriverManager
@@ -139,7 +139,7 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
 
     try:
         return webdriver.Chrome(options=options, service=service)
-    except SessionNotCreatedException:
+    except WebDriverException:
         logger.warning('Failed to create Chrome session. Trying with headless mode...')
         options.add_argument('--headless')
         return webdriver.Chrome(options=options, service=service)
