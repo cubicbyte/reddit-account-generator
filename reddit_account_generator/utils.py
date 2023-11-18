@@ -15,7 +15,7 @@ from dataclasses import dataclass
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, SessionNotCreatedException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
 from webdriver_manager.chrome import ChromeDriverManager
@@ -125,7 +125,9 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     service = ChromeService(executable_path=chrome_driver_path)
 
     options = webdriver.ChromeOptions()
-    options.add_argument('--lang=en')  # Not sure if this line is needed
+    options.add_argument('--lang=en')                # Not sure if this line is needed
+    options.add_argument('--no-sandbox')             # Needed to work on servers without GUI
+    options.add_argument('--disable-dev-shm-usage')  # Needed to work on servers without GUI
     options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
     options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Disable logging
 
@@ -135,7 +137,12 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     if proxy is not None:
         setup_proxy(options, proxy)
 
-    return webdriver.Chrome(options=options, service=service)
+    try:
+        return webdriver.Chrome(options=options, service=service)
+    except SessionNotCreatedException:
+        logger.warning('Failed to create Chrome session. Trying with headless mode...')
+        options.add_argument('--headless')
+        return webdriver.Chrome(options=options, service=service)
 
 
 def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
