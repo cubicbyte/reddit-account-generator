@@ -52,5 +52,8 @@ class IPCooldownException(RedditException):
         else:
             raise ValueError('Failed to parse cooldown from IPCooldownException')
 
+class NoSuchDriverException(Exception):
+    pass
+
 
 NetworkException = (RecaptchaException, IPCooldownException, TimeoutException)
