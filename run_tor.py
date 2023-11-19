@@ -16,7 +16,7 @@ root_dir = os.path.dirname(os.path.abspath(__file__))
 _tor_exec_names = ['tor', 'tor.exe', 'libTor.so']
 
 # Find tor executable
-for path in Path(root_dir).rglob('tor*'):
+for path in Path(root_dir).rglob('*'):
     if path.name in _tor_exec_names and path.is_file():
         tor_executable = path
         break
