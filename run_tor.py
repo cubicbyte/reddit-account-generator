@@ -13,7 +13,7 @@ No installation is required, just download Tor for your system and unzip the arc
 '''
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
-_tor_exec_names = ['tor', 'tor.exe']
+_tor_exec_names = ['tor', 'tor.exe', 'libTor.so']
 
 # Find tor executable
 for path in Path(root_dir).rglob('tor*'):
