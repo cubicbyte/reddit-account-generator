@@ -26,8 +26,8 @@ setup(
     license='MIT',
     keywords='python reddit account-generator account-maker account-generation r-place rplace',
     install_requires=[
-        'selenium >=4.7.0, <=4.9.1',
-        'selenium-recaptcha-solver >=1.4.0, <=1.9.0',
+        'selenium >=4.7.0, <=4.15.2',
+        'selenium-recaptcha-solver==1.9.0',
         'random-username >=1.0.0, <=1.0.2',
         'webdriver-manager~=4.0.1',
         'stem >=1.8.0, <=1.8.2',

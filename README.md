@@ -177,7 +177,7 @@ verify_email(email)
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - [selenium](https://pypi.org/project/selenium/)
 - [selenium-recaptcha-solver](https://pypi.org/project/selenium-recaptcha-solver/)
 - [random-username](https://pypi.org/project/random-username/)
