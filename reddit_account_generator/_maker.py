@@ -34,18 +34,19 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
     """
 
     logger.info('Creating reddit account')
-    driver = setup_chrome_driver(proxy, hide_browser)
-
-    if PAGE_LOAD_TIMEOUT_S is not None:
-        driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_S)
-
-    if email is None:
-        email = EMail().address
-
-    if password is None:
-        password = generate_password()
+    driver = None
 
     try:  # try/except to quit driver if error occurs
+        driver = setup_chrome_driver(proxy, hide_browser)
+
+        if PAGE_LOAD_TIMEOUT_S is not None:
+            driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_S)
+
+        if email is None:
+            email = EMail().address
+
+        if password is None:
+            password = generate_password()
 
         # Open website
         logger.debug('Opening registration page')
@@ -166,7 +167,8 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         # Account created!
 
     finally:  # quit driver if error occurs
-        logger.debug('Quitting driver')
-        driver.quit()
+        if driver is not None:
+            logger.debug('Quitting driver')
+            driver.quit()
 
     return email, username, password
