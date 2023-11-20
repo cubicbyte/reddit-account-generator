@@ -21,6 +21,7 @@ from random_username.generate import generate_username as _generate_username
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .exceptions import NoSuchDriverException
+from .config import USER_AGENT
 
 logger = logging.getLogger('reddit_account_generator')
 chrome_driver_path = None
@@ -125,9 +126,8 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     service = ChromeService(executable_path=chrome_driver_path)
 
     options = webdriver.ChromeOptions()
-    options.add_argument('--lang=en')                # Not sure if this line is needed
-    options.add_argument('--no-sandbox')             # Needed to work on servers without GUI
-    options.add_argument('--disable-dev-shm-usage')  # Needed to work on servers without GUI
+    options.add_argument(f'--user-agent={USER_AGENT}')
+    options.add_argument('--lang=en')  # Not sure if this line is needed
     options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
     options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Disable logging
 
@@ -142,6 +142,9 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     except WebDriverException:
         logger.warning('Failed to create Chrome session. Trying with headless mode...')
         options.add_argument('--headless')
+        options.add_argument('--no-sandbox')             # Needed to work on servers without GUI
+        options.add_argument('--disable-dev-shm-usage')  # Needed to work on servers without GUI
+        # FIXME: --no-sandbox can cause chrome process to stay alive after script is finished, on windows at least
         return webdriver.Chrome(options=options, service=service)
 
 
