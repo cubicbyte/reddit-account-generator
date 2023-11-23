@@ -7,7 +7,6 @@ import random
 import string
 import logging
 import secrets
-import zipfile
 import tempfile
 from typing import Optional, Dict, Tuple, Union
 from dataclasses import dataclass
@@ -141,7 +140,8 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
         return webdriver.Chrome(options=options, service=service)
     except WebDriverException:
         logger.warning('Failed to create Chrome session. Trying with headless mode...')
-        options.add_argument('--headless')
+        if not hide_browser:
+            options.add_argument('--headless')
         options.add_argument('--no-sandbox')             # Needed to work on servers without GUI
         options.add_argument('--disable-dev-shm-usage')  # Needed to work on servers without GUI
         # FIXME: --no-sandbox can cause chrome process to stay alive after script is finished, on windows at least
@@ -188,16 +188,16 @@ def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
 
     background_js = '''
     var config = {
-            mode: "fixed_servers",
-            rules: {
-            singleProxy: {
-                scheme: "%s",
-                host: "%s",
-                port: parseInt(%s)
-            },
-            bypassList: ["localhost"]
-            }
-        };
+        mode: "fixed_servers",
+        rules: {
+        singleProxy: {
+            scheme: "%s",
+            host: "%s",
+            port: parseInt(%s)
+        },
+        bypassList: ["localhost"]
+        }
+    };
 
     chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
 
@@ -211,20 +211,21 @@ def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
     }
 
     chrome.webRequest.onAuthRequired.addListener(
-                callbackFn,
-                {urls: ["<all_urls>"]},
-                ['blocking']
+        callbackFn,
+        {urls: ["<all_urls>"]},
+        ['blocking']
     );
     ''' % (proxy.scheme, proxy.host, proxy.port, user, password)
 
-    with tempfile.NamedTemporaryFile('w', suffix='.zip') as fp:
-        plugin_file = fp.name
+    tmpdir = tempfile.mkdtemp()
 
-    with zipfile.ZipFile(plugin_file, 'w') as zp:
-        zp.writestr('manifest.json', manifest_json)
-        zp.writestr('background.js', background_js)
+    with open(os.path.join(tmpdir, 'manifest.json'), 'w') as f:
+        f.write(manifest_json)
 
-    options.add_extension(plugin_file)
+    with open(os.path.join(tmpdir, 'background.js'), 'w') as f:
+        f.write(background_js)
+
+    options.add_argument(f'--load-extension={tmpdir}')
 
 
 def try_to_click(element: WebElement, delay: Union[int, float] = 0.5, max_tries: int = 20) -> bool:
