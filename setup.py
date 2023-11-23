@@ -32,7 +32,7 @@ setup(
         'webdriver-manager~=4.0.1',
         'stem >=1.8.0, <=1.8.2',
         'static-ffmpeg >=2.3, <=2.5',
-        'tempmail-python==2.3.0',
+        'tempmail-python==2.3.2',
         'beautifulsoup4~=4.12.0',
     ],
     classifiers=[
