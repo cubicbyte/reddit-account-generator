@@ -226,6 +226,7 @@ def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
         f.write(background_js)
 
     options.add_argument(f'--load-extension={tmpdir}')
+    # FIXME: This will create a new extension dir for each session and will not delete it until system reboot
 
 
 def try_to_click(element: WebElement, delay: Union[int, float] = 0.5, max_tries: int = 20) -> bool:

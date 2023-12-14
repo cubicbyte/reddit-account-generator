@@ -138,7 +138,7 @@ try:
         else:
             for i in range(MAX_RETRIES):
                 try:
-                    verify_email(email)
+                    verify_email(email, proxy=proxy)
                     logger.info('Email verified!\n')
                     break
 
