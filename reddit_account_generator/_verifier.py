@@ -5,10 +5,13 @@ from typing import Optional
 
 import requests
 from tempmail import EMail
+from fake_useragent import UserAgent
 
-from .config import USER_AGENT, EMAIL_MESSAGE_WAIT_TIMEOUT_S
+from .config import EMAIL_MESSAGE_WAIT_TIMEOUT_S
 from .exceptions import EmailVerificationException
 from .utils import Proxy
+
+USER_AGENT = UserAgent().random
 
 logger = logging.getLogger('reddit_account_generator')
 

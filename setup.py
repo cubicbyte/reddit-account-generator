@@ -34,6 +34,7 @@ setup(
         'static-ffmpeg >=2.3, <=2.5',
         'tempmail-python==2.3.2',
         'beautifulsoup4~=4.12.0',
+        'fake-useragent~=1.3.0',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

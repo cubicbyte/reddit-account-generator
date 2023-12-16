@@ -18,12 +18,13 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
 from webdriver_manager.chrome import ChromeDriverManager
+from fake_useragent import UserAgent
 
 from .exceptions import NoSuchDriverException
-from .config import USER_AGENT
 
 logger = logging.getLogger('reddit_account_generator')
 chrome_driver_path = None
+user_agent = UserAgent()
 
 
 @dataclass
@@ -124,9 +125,11 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
 
     service = ChromeService(executable_path=chrome_driver_path)
 
+    user_agent = UserAgent()
+
     options = webdriver.ChromeOptions()
-    options.add_argument(f'--user-agent={USER_AGENT}')
-    options.add_argument('--lang=en')  # Not sure if this line is needed
+    options.add_argument(f'--user-agent={user_agent.random}')  # Set random user agent to avoid detection
+    options.add_argument('--lang=en')                          # Not sure if this line is needed
     options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
     options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Disable logging
 
