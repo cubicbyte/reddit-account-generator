@@ -59,6 +59,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         try:
             first_h1 = driver.find_element(By.TAG_NAME, 'h1')
             if first_h1.text == 'whoa there, pardner!':
+                # FIXME: this will throw error when accessing err.cooldown
                 raise IPCooldownException('Your IP is temporarily blocked. Try again later.')
         except NoSuchElementException:
             pass

@@ -83,7 +83,13 @@ try:
 
         # Create account
         retries = 0
-        while retries < MAX_RETRIES:
+        while True:
+            # Every 5 retries, change proxy
+            retries += 1
+            if retries % 5 == 0:
+                proxy = proxy_manager.get_next()
+                logger.warning('Failed 5 times in a row. Using next proxy: %s', proxy)
+
             try:
                 email, username, password = create_account(
                     email=EMAIL or None,
@@ -113,26 +119,22 @@ try:
                     logger.info('If you\'re using tor proxy, it will take a few of RecaptchaException per 1 account.')
 
                 proxy = proxy_manager.get_next()
+                retries = 0
                 logger.info('Using next proxy: %s', proxy)
 
-            except NoSuchWindowException as e:
+            except (KeyboardInterrupt, SystemExit, NoSuchWindowException) as e:
                 # Handle this in top level try-except
                 raise e
 
-            except WebDriverException as e:
+            except Exception as e:
                 logger.error(e)
-                logging.error('An error occurred during account creation. Trying again %s more times...', MAX_RETRIES - retries)
-                retries += 1
-                username, password = None, None
-        else:
-            logger.error('An error occurred during account creation. Exiting...')
-            exit(1)
+                logging.error('An error occurred during account creation. Trying again...')
 
         save_account(email, username, password)
         logger.info('Account created!')
 
         # Verify email
-        if EMAIL:
+        if EMAIL != '':
             # You need to manually verify email if you are using your own email
             pass
         else:
@@ -146,11 +148,11 @@ try:
                     logger.error(f'Timeout error: {e}\nProbably email message was not received. Creating next account...')
                     break
 
-                except WebDriverException as e:
+                except Exception as e:
                     logger.error(e)
                     logger.error('An error occurred during email verification. Trying again... [%s/%s]', i+1, MAX_RETRIES)
             else:
-                logger.error('Email verification failed. Skipping...')
+                logger.warning('Email verification failed. Skipping...')
 
 except (KeyboardInterrupt, SystemExit, NoSuchWindowException):
     logger.info('Exiting...')
