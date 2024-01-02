@@ -2,7 +2,6 @@
 
 import os
 import time
-import shutil
 import random
 import string
 import logging
@@ -17,14 +16,9 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 from random_username.generate import generate_username as _generate_username
-from webdriver_manager.chrome import ChromeDriverManager
 from fake_useragent import UserAgent
 
-from .exceptions import NoSuchDriverException
-
 logger = logging.getLogger('reddit_account_generator')
-chrome_driver_path = None
-user_agent = UserAgent()
 
 
 @dataclass
@@ -140,7 +134,7 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
         setup_proxy(options, proxy)
 
     try:
-        return webdriver.Chrome(options=options, service=service)
+        return webdriver.Chrome(options=options)
     except WebDriverException:
         logger.warning('Failed to create Chrome session. Trying with headless mode...')
         if not hide_browser:
@@ -148,7 +142,7 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
         options.add_argument('--no-sandbox')             # Needed to work on servers without GUI
         options.add_argument('--disable-dev-shm-usage')  # Needed to work on servers without GUI
         # FIXME: --no-sandbox can cause chrome process to stay alive after script is finished, on windows at least
-        return webdriver.Chrome(options=options, service=service)
+        return webdriver.Chrome(options=options)
 
 
 def setup_proxy(options: webdriver.ChromeOptions, proxy: Proxy):
@@ -274,29 +268,3 @@ def parse_proxy(proxy: str) -> Proxy:
     port = int(port)
 
     return Proxy(host, port, scheme, user, password)
-
-
-def install_chrome_driver():
-    """
-    Download and install chrome driver
-    """
-    # Return if already installed
-    global chrome_driver_path
-    if chrome_driver_path is not None:
-        return
-    
-    # Try to find in PATH
-    path = shutil.which('chromedriver')
-    if path is not None:
-        chrome_driver_path = path
-        return
-
-    # Download driver
-    logger.info('Downloading chrome driver...')
-
-    try:
-        chrome_driver_path = ChromeDriverManager().install()
-    except AttributeError:
-        raise NoSuchDriverException('Failed to download chrome driver for your browser version. Make sure that Chrome is installed.')
-
-    logger.debug('Chrome driver downloaded to %s', chrome_driver_path)

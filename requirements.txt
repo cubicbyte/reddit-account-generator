@@ -1,7 +1,6 @@
 selenium >=4.7.0, <=4.15.2
 selenium-recaptcha-solver==1.9.0
 random-username >=1.0.0, <=1.0.2
-webdriver-manager~=4.0.1
 stem >=1.8.0, <=1.8.2
 static-ffmpeg >=2.3, <=2.5
 tempmail-python==2.3.2
