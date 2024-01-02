@@ -22,7 +22,7 @@ def verify_email(email: str, proxy: Optional[Proxy] = None):
     Proxies are not needed for this step.
 
     :param email: Email to verify
-    :param proxies: Proxies to use: {'https': '<ip:port>'}
+    :param proxy: Proxy to use, :class:`Proxy` object
     """
     logger.info(f'Verifying reddit account email {email}')
 

@@ -91,7 +91,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         logger.debug('Entering username and password')
         try:
             # Get random username suggested by reddit
-            random_username = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
+            random_username_el = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
         except NoSuchElementException:
             # Sometimes reddit doesn't suggest any username
             username = generate_username()
@@ -103,8 +103,8 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
             username_input.send_keys(username)
         else:
             # Click first reddit sugegsted name
-            try_to_click(random_username, delay=MICRO_DELAY_S)
-            username = random_username.text
+            try_to_click(random_username_el, delay=MICRO_DELAY_S)
+            username = random_username_el.text
 
         # Enter password
         password_input = driver.find_element(By.ID, 'regPassword')

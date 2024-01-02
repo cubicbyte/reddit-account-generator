@@ -1,6 +1,9 @@
 # Requirements file for command line script.
 
-coloredlogs==15.0.1
 
 # Also include the requirements for the main package.
 -r requirements.txt
+
+# TODO: rem this
+
+# TODO: fix README to exclude this
