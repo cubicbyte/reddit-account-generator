@@ -18,6 +18,7 @@ logger = logging.getLogger('script')
 logging.getLogger('WDM').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
 logging.getLogger('selenium').setLevel(logging.WARNING)
+logging.getLogger('undetected_chromedriver').setLevel(logging.WARNING)
 
 try:
     import coloredlogs
