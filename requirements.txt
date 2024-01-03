@@ -1,6 +1,5 @@
 undetected-chromedriver~=3.5.4
 selenium >=4.7.0, <=4.15.2
-selenium-recaptcha-solver==1.9.0
 random-username >=1.0.0, <=1.0.2
 stem >=1.8.0, <=1.8.2
 static-ffmpeg >=2.3, <=2.5
@@ -8,10 +7,11 @@ tempmail-python==2.3.2
 beautifulsoup4~=4.12.0
 fake-useragent~=1.4.0
 requests~=2.31.0
+selenium-recaptcha-solver @ git+https://github.com/cubicbyte/selenium-recaptcha-solver.git@v1.9.1
 
 coloredlogs==15.0.1
 
-setuptools~=69.0.3
+setuptools~=69.0.3; python_version~='3.12'
 # Needed for undetected-chromedriver to work on python 3.12
 # https://github.com/ultrafunkamsterdam/undetected-chromedriver/issues/1674
 # TODO: remove when fixed
