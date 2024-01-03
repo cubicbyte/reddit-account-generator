@@ -15,7 +15,7 @@ from selenium_recaptcha_solver import RecaptchaSolver, RecaptchaException
 from .utils import setup_chrome_driver, try_to_click, generate_password, generate_username, Proxy
 from .config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
 from .exceptions import IPCooldownException, SessionExpiredException, UsernameTakenException, \
-    UsernameLengthException, UsernameSymbolsException, PasswordLengthException, UserAgentException, \
+    UsernameLengthException, UsernameSymbolsException, PasswordLengthException, BotDetectedException, \
     RedditException
 
 
@@ -60,7 +60,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         try:
             first_h1 = driver.find_element(By.TAG_NAME, 'h1')
             if first_h1.text == 'whoa there, pardner!':
-                raise UserAgentException('Reddit didn\'t like your user-agent. Maybe it\'s empty?')
+                raise BotDetectedException('Reddit didn\'t like your user-agent. Maybe it\'s empty?')
         except NoSuchElementException:
             pass
 

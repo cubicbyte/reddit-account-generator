@@ -126,8 +126,6 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     options.add_argument(f'--user-agent={user_agent.random}')  # Set random user agent to avoid detection
     options.add_argument('--lang=en')  # Not sure if this line is needed
     options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
-    # options.add_argument('--disable-dev-shm-usage')  # Needed to work on servers without GUI
-    # TODO: try to run this script on server without GUI and see if this line is needed
 
     if proxy is not None:
         setup_proxy(options, proxy)  # TODO: test this
@@ -278,10 +276,10 @@ def get_chrome_driver_path() -> Tuple[str, str | None]:
     except AttributeError as e:
         # This error occurs when we can't find Chrome
         if "'NoneType' object has no attribute 'split'" in str(e):
-            logging.warning('Chrome is not installed. Trying to fix it...')
-
             if os.name == 'nt':
                 # Windows
+                logging.warning('Chrome is not installed. Trying to fix it...')
+
                 # Use Selenium built-in manager to get the executable paths.
                 manager = SeleniumManager()
                 args = [str(manager.get_binary()), '--browser', 'chrome']
@@ -294,7 +292,7 @@ def get_chrome_driver_path() -> Tuple[str, str | None]:
 
             else:
                 # Other OS, can't fix it
-                raise e
+                raise Exception('Chrome is not installed. Please install it manually.')
 
         else:
             raise e

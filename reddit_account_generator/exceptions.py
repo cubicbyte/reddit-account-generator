@@ -64,8 +64,13 @@ class IPCooldownException(RedditException):
             raise ValueError('Failed to parse cooldown from IPCooldownException')
 
 
-class UserAgentException(RedditException):
-    """Raised when the user agent is empty or invalid"""
+class BotDetectedException(RedditException):
+    """Raised when reddit suspects you are a bot.
+
+    Known reasons:
+    - You are using a proxy
+    - You are using public VM, like AWS EC2
+    - User-Agent is empty or invalid"""
 
 
 IPException = (RecaptchaException, IPCooldownException, TimeoutException)

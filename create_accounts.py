@@ -1,12 +1,13 @@
 import time
 import logging
 
-from selenium.common.exceptions import NoSuchWindowException, WebDriverException
+from selenium.common.exceptions import NoSuchWindowException
 
 from reddit_account_generator import config as generator_config, create_account, verify_email
 from reddit_account_generator.proxies import DefaultProxy, TorProxy, EmptyProxy
-from reddit_account_generator.utils import *
-from reddit_account_generator.exceptions import *
+from reddit_account_generator.utils import load_proxies, check_tor_running
+from reddit_account_generator.exceptions import UsernameTakenException, SessionExpiredException, \
+    IPCooldownException, IPException
 from config import *
 
 num_of_accounts = int(input('How many accounts do you want to make? '))
@@ -129,6 +130,10 @@ try:
             except Exception as e:
                 logger.error(e)
                 logging.error('An error occurred during account creation. Trying again...')
+
+            # Wait a bit before next try.
+            # This is needed to avoid console spamming
+            time.sleep(1)
 
         save_account(email, username, password)
         logger.info('Account created!')
