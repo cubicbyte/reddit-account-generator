@@ -2,6 +2,7 @@
 
 import os
 import time
+import shutil
 import random
 import string
 import logging
@@ -120,7 +121,6 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
 
     logger.info('Installing Chrome driver...')
     driver_executable_path, browser_executable_path = get_chrome_driver_path()
-    logger.debug('Chrome driver installed.')
 
     options = uc.ChromeOptions()
     options.add_argument(f'--user-agent={user_agent.random}')  # Set random user agent to avoid detection
@@ -129,6 +129,10 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
 
     if proxy is not None:
         setup_proxy(options, proxy)  # TODO: test this
+
+    logger.debug('Starting Chrome...')
+    logger.debug('If it\'s stuck here, try to change HEADLESS to True in config.py file')
+    # TODO: change hide_browser to headless
 
     return uc.Chrome(
         options=options,
@@ -269,6 +273,11 @@ def get_chrome_driver_path() -> Tuple[str, str | None]:
 
     :return: Tuple of (driver_path, browser_path)
     """
+
+    # Try to find in PATH
+    path = shutil.which('chromedriver')
+    if path is not None:
+        return path, None
 
     try:
         return ChromeDriverManager().install(), None
