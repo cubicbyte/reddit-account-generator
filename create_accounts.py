@@ -9,9 +9,7 @@ from reddit_account_generator.utils import *
 from reddit_account_generator.exceptions import *
 from config import *
 
-
 num_of_accounts = int(input('How many accounts do you want to make? '))
-
 
 # Set logging
 logger = logging.getLogger('script')
@@ -22,6 +20,7 @@ logging.getLogger('undetected_chromedriver').setLevel(logging.WARNING)
 
 try:
     import coloredlogs
+
     coloredlogs.install(level=LOG_LEVEL, fmt='%(asctime)s %(levelname)s %(message)s')
 except ImportError:
     logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s %(levelname)s %(message)s')
@@ -64,8 +63,7 @@ else:
         proxy_manager = EmptyProxy()
         logger.warning('Tor is not running. Using local IP address.')
         logger.warning('It is recommended to use proxies or Tor to avoid IP cooldowns.\n\n' +
-                        'Please, run command "python run_tor.py" or add proxies to file %s\n', PROXIES_FILE)
-
+                       'Please, run command "python run_tor.py" or add proxies to file %s\n', PROXIES_FILE)
 
 # Create accounts
 IP_COOLDOWN_S = 60 * 10  # 10 minutes
@@ -76,10 +74,11 @@ try:
         # Check if we need to wait for IP cooldown
         delta = time.time() - latest_account_created_timestamp
         if isinstance(proxy_manager, EmptyProxy) and delta < IP_COOLDOWN_S:
-            logger.warning(f'IP cooldown. Waiting {(IP_COOLDOWN_S - delta) / 60 :.1f} minutes. Use tor/proxies to avoid this.')
+            logger.warning(
+                f'IP cooldown. Waiting {(IP_COOLDOWN_S - delta) / 60 :.1f} minutes. Use tor/proxies to avoid this.')
             time.sleep(IP_COOLDOWN_S - delta)
 
-        logger.info('Creating account (%s/%s)', i+1, num_of_accounts)
+        logger.info('Creating account (%s/%s)', i + 1, num_of_accounts)
         proxy = proxy_manager.get_next()
 
         # Create account
@@ -100,13 +99,13 @@ try:
                 latest_account_created_timestamp = time.time()
                 break
 
-            except UsernameTakenException:
-                logger.error('Username %s taken. Trying again.', username)
+            except UsernameTakenException as e:
+                logger.error('Username taken: %s. Trying again...', e)
 
             except SessionExpiredException:
                 logger.error('Page session expired. Trying again.')
 
-            except NetworkException as e:
+            except IPException as e:
                 # If we are using local IP address, we can't bypass IP cooldown
                 if isinstance(proxy_manager, EmptyProxy) and (
                         isinstance(e, IPCooldownException)):
@@ -115,7 +114,7 @@ try:
                     time.sleep(e.cooldown.total_seconds())
                     continue
 
-                logger.error('Network failed with %s.', e.__class__.__name__)
+                logger.error('IP-related error: %s.', e.__class__.__name__)
                 if isinstance(e, IPCooldownException) and isinstance(proxy_manager, TorProxy):
                     logger.info('If you\'re using tor proxy, it will take a few of RecaptchaException per 1 account.')
 
@@ -146,12 +145,14 @@ try:
                     break
 
                 except TimeoutError as e:
-                    logger.error(f'Timeout error: {e}\nProbably email message was not received. Creating next account...')
+                    logger.error(
+                        f'Timeout error: {e}\nProbably email message was not received. Creating next account...')
                     break
 
                 except Exception as e:
                     logger.error(e)
-                    logger.error('An error occurred during email verification. Trying again... [%s/%s]', i+1, MAX_RETRIES)
+                    logger.error('An error occurred during email verification. Trying again... [%s/%s]',
+                                 i + 1, MAX_RETRIES)
             else:
                 logger.warning('Email verification failed. Skipping...')
 

@@ -15,7 +15,8 @@ from selenium_recaptcha_solver import RecaptchaSolver, RecaptchaException
 from .utils import setup_chrome_driver, try_to_click, generate_password, generate_username, Proxy
 from .config import PAGE_LOAD_TIMEOUT_S, DRIVER_TIMEOUT_S, MICRO_DELAY_S
 from .exceptions import IPCooldownException, SessionExpiredException, UsernameTakenException, \
-    UsernameLengthException, UsernameSymbolsException, PasswordLengthException
+    UsernameLengthException, UsernameSymbolsException, PasswordLengthException, UserAgentException, \
+    RedditException
 
 
 logger = logging.getLogger('reddit_account_generator')
@@ -53,14 +54,13 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         try:
             driver.get('https://www.reddit.com/register/')
         except WebDriverException:
-            raise TimeoutException('Website takes too long to load. Probably a problem with the proxy.')
+            raise TimeoutException('Website takes too long to load. Probably a proxy is too slow.')
 
-        # Checking if IP is blocked
+        # Checking for user agent error
         try:
             first_h1 = driver.find_element(By.TAG_NAME, 'h1')
             if first_h1.text == 'whoa there, pardner!':
-                # FIXME: this will throw error when accessing err.cooldown
-                raise IPCooldownException('Your IP is temporarily blocked. Try again later.')
+                raise UserAgentException('Reddit didn\'t like your user-agent. Maybe it\'s empty?')
         except NoSuchElementException:
             pass
 
@@ -82,7 +82,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
             if email_err.text != '':
                 if 'again' in email_err.text.lower():
                     raise SessionExpiredException(email_err.text)
-                raise Exception(email_err.text)
+                raise RedditException(email_err.text)
 
         # Wait until page loads
         WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.ID, 'regUsername')))
@@ -91,7 +91,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         logger.debug('Entering username and password')
         try:
             # Get random username suggested by reddit
-            random_username_el = driver.find_element(By.XPATH, '/html/body/div/main/div[2]/div/div/div[2]/div[2]/div/div/a[1]')
+            random_username_el = driver.find_element(By.CLASS_NAME, 'Onboarding__usernameSuggestion')
         except NoSuchElementException:
             # Sometimes reddit doesn't suggest any username
             username = generate_username()
@@ -119,17 +119,17 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
 
         if username_err.text != '':
             if 'taken' in username_err.text.lower():
-                raise UsernameTakenException(username_err.text)
+                raise UsernameTakenException(username_err.text, username)
             if 'character' in username_err.text.lower():
-                raise UsernameLengthException(username_err.text)
+                raise UsernameLengthException(username_err.text, username)
             if 'symbols' in username_err.text.lower():
-                raise UsernameSymbolsException(username_err.text)
-            raise Exception(username_err.text)
+                raise UsernameSymbolsException(username_err.text, username)
+            raise RedditException(username_err.text)
 
         if password_err.text != '':
             if 'character' in password_err.text.lower():
                 raise PasswordLengthException(password_err.text)
-            raise Exception(password_err.text)
+            raise RedditException(password_err.text)
 
         # Solve captcha
         logger.debug('Solving captcha')
@@ -160,7 +160,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         if submit_err.text != '':
             if 'again' in submit_err.text.lower():
                 raise IPCooldownException(submit_err.text)
-            raise Exception(submit_err.text)
+            raise RedditException(submit_err.text)
 
         # Wait until button is pressed
         time.sleep(MICRO_DELAY_S * 3)

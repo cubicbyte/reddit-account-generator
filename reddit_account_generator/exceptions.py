@@ -7,33 +7,44 @@ from selenium_recaptcha_solver.exceptions import RecaptchaException
 
 
 class RedditException(Exception):
+    """Base class for reddit_account_generator exceptions"""
+
+
+class UsernameException(RedditException):
+    """Base class for username exceptions"""
+
+    def __init__(self, message: str, username: str):
+        super().__init__(message)
+        self.username = username
+
+
+class UsernameTakenException(UsernameException):
     pass
 
-class UsernameTakenException(RedditException):
+
+class UsernameLengthException(UsernameException):
     pass
 
-class UsernameLengthException(RedditException):
+
+class UsernameSymbolsException(UsernameException):
     pass
 
-class UsernameSymbolsException(RedditException):
-    pass
 
 class PasswordLengthException(RedditException):
     pass
 
-class SessionExpiredException(RedditException):
-    pass
 
-class IncorrectUsernameOrPasswordException(RedditException):
-    pass
+class SessionExpiredException(RedditException):
+    """Sometimes occurs on email entry page"""
+
 
 class EmailVerificationException(RedditException):
     pass
 
-class AuthException(RedditException):
-    pass
 
 class IPCooldownException(RedditException):
+    """Raised when you have created a reddit account from this IP too recently."""
+
     @property
     def cooldown(self) -> timedelta:
         """Cooldown in minutes."""
@@ -52,4 +63,10 @@ class IPCooldownException(RedditException):
         else:
             raise ValueError('Failed to parse cooldown from IPCooldownException')
 
-NetworkException = (RecaptchaException, IPCooldownException, TimeoutException)
+
+class UserAgentException(RedditException):
+    """Raised when the user agent is empty or invalid"""
+
+
+IPException = (RecaptchaException, IPCooldownException, TimeoutException)
+"""IP-related exceptions"""
