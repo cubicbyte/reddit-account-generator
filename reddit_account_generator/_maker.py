@@ -167,9 +167,15 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
 
         # Account created!
 
-    finally:  # quit driver if error occurs
+    finally:
+        # quit driver even if error occurs
         if driver is not None:
             logger.debug('Quitting driver')
-            driver.quit()
+            try:
+                driver.quit()
+            except OSError:
+                # TODO: remove when fixed
+                # https://github.com/ultrafunkamsterdam/undetected-chromedriver/issues/1490
+                pass
 
     return email, username, password
