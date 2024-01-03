@@ -128,7 +128,7 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
 
     if proxy is not None:
-        setup_proxy(options, proxy)  # TODO: test this
+        setup_proxy(options, proxy)
 
     logger.debug('Starting Chrome...')
     logger.debug('If it\'s stuck here, try to change HEADLESS to True in config.py file')

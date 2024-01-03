@@ -66,6 +66,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
 
         # Enter email and go to next page
         logger.debug('Entering email')
+        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.ID, 'regEmail')))
         email_input = driver.find_element(By.ID, 'regEmail')
         email_submit = driver.find_element(By.CSS_SELECTOR, 'button[data-step="email"]')
         email_input.click()
@@ -171,11 +172,6 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         # quit driver even if error occurs
         if driver is not None:
             logger.debug('Quitting driver')
-            try:
-                driver.quit()
-            except OSError:
-                # TODO: remove when fixed
-                # https://github.com/ultrafunkamsterdam/undetected-chromedriver/issues/1490
-                pass
+            driver.quit()
 
     return email, username, password
