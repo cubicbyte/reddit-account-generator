@@ -52,46 +52,48 @@ cd reddit-account-generator
 2. Install the required dependencies:
 
 ```shell
-pip install -r requirements-cli.txt
+pip install -r requirements.txt
 ```
 
-3. Install chrome:
+3. Install chrome and other things:
 
-   - Windows/MacOS: Just install it
-   - Linux:
-   ```shell
-   sudo apt update
-   sudo apt install wget
-   wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-   sudo dpkg -i google-chrome-stable_current_amd64.deb
-   sudo apt-get install -f
-   ```
+    - Windows/macOS: Just install chrome
+    - Linux amd64 (Choose this if not sure):
+    ```shell
+    sudo apt update
+    sudo apt install wget
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    sudo dpkg -i google-chrome-stable_current_amd64.deb
+    sudo apt-get install -f
+    ```
+   
+    - Linux arm64:
+    ```shell
+    sudo apt update
+    sudo apt install chromium-browser
+    ```
 
-   - Android (Termux):
-   ```shell
-   pkg update
-   pkg install x11-repo -y
-   pkg install tur-repo -y
-   pkg install chromium -y
-   pkg install ffmpeg -y
-   ```
-
+    - Android (Termux):
+    ```shell
+    pkg update
+    pkg install x11-repo -y
+    pkg install tur-repo -y
+    pkg install chromium -y
+    pkg install ffmpeg -y
+    ```
 ## Script usage
-
-> **Note** **You need to use Tor (not browser) or proxy, because you can only create 1 account per IP in 10 minutes**
-
-#### Using Tor (recommended for beginners)
-Run this command and follow the instructions:
-```shell
-python run_tor.py
-```
-
-#### Using proxies
-Add your proxies to the proxies.txt file
 
 ### Configuring
 
-Configuring is not needed. But if you want, you can change the settings in the [config.py](config.py) file.
+Configuring is optional. But if you want, you can change the settings in the [config.py](config.py) file.
+
+### Proxies (Optional)
+
+Script supports proxies, which can bypass the limit of 1 account per IP in 10 minutes.
+
+Here is list of supported proxy types:
+- `python run_tor.py` - Tor proxy (Works bad at the moment)
+- **Proxies from file** - You can add your own proxies to the file [proxies.txt](proxies.txt)
 
 ### Starting
 

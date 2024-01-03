@@ -1,9 +1,12 @@
 # Proxies in next format (if no protocol, http is used):
+
 # 127.0.0.1:1080
 # localhost:4145
 # http://127.0.0.1:1080
 # socks5://localhost:4145
 # https://root:password@localhost:4145
 # root:password@127.0.0.1:1080
-# WRITE YOUR PROXIES BELOW:
+
+# Each proxy must be in new line.
+# WRITE YOUR PROXIES BELOW (without # symbol):
 
