@@ -15,6 +15,7 @@ import undetected_chromedriver as uc
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.selenium_manager import SeleniumManager
 from selenium.webdriver.remote.webelement import WebElement
+from webdriver_manager.chrome import ChromeDriverManager
 from random_username.generate import generate_username as _generate_username
 from fake_useragent import UserAgent
 
@@ -118,11 +119,12 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     user_agent = UserAgent()
 
     logger.info('Installing Chrome driver...')
-    browser_executable_path, driver_executable_path = get_chrome_executable_path()
+    driver_executable_path, browser_executable_path = get_chrome_driver_path()
+    logger.debug('Chrome driver installed.')
 
     options = uc.ChromeOptions()
     options.add_argument(f'--user-agent={user_agent.random}')  # Set random user agent to avoid detection
-    options.add_argument('--lang=en')                          # Not sure if this line is needed
+    options.add_argument('--lang=en')  # Not sure if this line is needed
     options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US,en'})
     # options.add_argument('--disable-dev-shm-usage')  # Needed to work on servers without GUI
     # TODO: try to run this script on server without GUI and see if this line is needed
@@ -133,8 +135,8 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
     return uc.Chrome(
         options=options,
         headless=hide_browser,
+        driver_executable_path=driver_executable_path,
         browser_executable_path=browser_executable_path,
-        executable_path=driver_executable_path,
         no_sandbox=False,  # Partially fixes error below
         # FIXME: this can causes chrome process to stay alive after script is finished
     )
@@ -264,18 +266,35 @@ def parse_proxy(proxy: str) -> Proxy:
     return Proxy(host, port, scheme, user, password)
 
 
-def get_chrome_executable_path() -> Tuple[str, str]:
-    """Get the path to the Chrome executable.
+def get_chrome_driver_path() -> Tuple[str, str | None]:
+    """Get the path to the Chrome driver executable
 
-    :Returns: The path to the Chrome executable and the path of chromedriver executable
+    :return: Tuple of (driver_path, browser_path)
     """
 
-    # Use Selenium built-in manager to get the executable paths.
-    manager = SeleniumManager()
-    args = [str(manager.get_binary()), '--browser', 'chrome']
-    output = manager.run(args)
+    try:
+        return ChromeDriverManager().install(), None
 
-    browser_path = output["browser_path"]
-    driver_path = output["driver_path"]
+    except AttributeError as e:
+        # This error occurs when we can't find Chrome
+        if "'NoneType' object has no attribute 'split'" in str(e):
+            logging.warning('Chrome is not installed. Trying to fix it...')
 
-    return browser_path, driver_path
+            if os.name == 'nt':
+                # Windows
+                # Use Selenium built-in manager to get the executable paths.
+                manager = SeleniumManager()
+                args = [str(manager.get_binary()), '--browser', 'chrome']
+                output = manager.run(args)
+
+                driver_path = output["driver_path"]
+                browser_path = output["browser_path"]
+
+                return driver_path, browser_path
+
+            else:
+                # Other OS, can't fix it
+                raise e
+
+        else:
+            raise e
