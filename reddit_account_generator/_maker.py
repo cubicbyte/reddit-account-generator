@@ -77,7 +77,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
         time.sleep(MICRO_DELAY_S)
         try:
             email_err = driver.find_element(By.CLASS_NAME, 'AnimatedForm__errorMessage')
-        except:
+        except WebDriverException:
             pass
         else:
             if email_err.text != '':
@@ -134,7 +134,8 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
 
         # Solve captcha
         logger.debug('Solving captcha')
-        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(EC.element_to_be_clickable((By.XPATH, '//iframe[@title="reCAPTCHA"]')))
+        WebDriverWait(driver, DRIVER_TIMEOUT_S).until(
+            EC.element_to_be_clickable((By.XPATH, '//iframe[@title="reCAPTCHA"]')))
         recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
 
         if recaptcha_iframe.is_displayed():

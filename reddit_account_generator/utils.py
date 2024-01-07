@@ -229,7 +229,7 @@ def try_to_click(element: WebElement, delay: Union[int, float] = 0.5, max_tries:
         try:
             element.click()
             return
-        except:
+        except Exception:
             retries += 1
             time.sleep(delay)
     raise TimeoutException(f'Could not click element after {max_tries} tries.')
