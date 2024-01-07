@@ -8,7 +8,7 @@ from tempmail import EMail
 from fake_useragent import UserAgent
 
 from .config import EMAIL_MESSAGE_WAIT_TIMEOUT_S
-from .exceptions import EmailVerificationException
+from .exceptions import EmailVerificationException, BotDetectedException
 from .utils import Proxy
 
 USER_AGENT = UserAgent().random
@@ -22,7 +22,7 @@ def verify_email(email: str, proxy: Optional[Proxy] = None):
     Proxies are not needed for this step.
 
     :param email: Email to verify
-    :param proxies: Proxies to use: {'https': '<ip:port>'}
+    :param proxy: Proxy to use, :class:`Proxy` object
     """
     logger.info(f'Verifying reddit account email {email}')
 
@@ -44,10 +44,14 @@ def verify_email(email: str, proxy: Optional[Proxy] = None):
     }, proxies=proxies, auth=auth)
 
     if resp.status_code != 200:
-        if 'EMAIL_ALREADY_VERIFIED' not in resp.text:
-            raise EmailVerificationException(resp.text)
+        if 'EMAIL_ALREADY_VERIFIED' in resp.text:
+            logger.warning('Email is already verified')
 
-        logger.warning('Email is already verified')
+        elif 'whoa there, pardner!' in resp.text:
+            raise BotDetectedException('Reddit suspects you are a bot.'
+                                       'You are probably using a bad proxy or public VM.')
+
+        raise EmailVerificationException(resp.text)
 
 
 def get_verification_link(email: str, proxy: Optional[Proxy] = None) -> str:
@@ -89,4 +93,5 @@ def get_direct_verification_link(link: str) -> str:
     end = link.index('&', start)
     correlation_id = link[start:end]
 
-    return f'https://www.reddit.com/api/v1/verify_email/{token}.json?correlation_id={correlation_id}&ref_campaign=verify_email'
+    return (f'https://www.reddit.com/api/v1/verify_email/{token}.json'
+            f'?correlation_id={correlation_id}&ref_campaign=verify_email')

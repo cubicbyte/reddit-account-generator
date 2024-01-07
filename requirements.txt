@@ -1,9 +1,21 @@
 selenium >=4.7.0, <=4.15.2
-selenium-recaptcha-solver==1.9.0
 random-username >=1.0.0, <=1.0.2
-webdriver-manager~=4.0.1
 stem >=1.8.0, <=1.8.2
 static-ffmpeg >=2.3, <=2.5
 tempmail-python==2.3.2
 beautifulsoup4~=4.12.0
 fake-useragent~=1.4.0
+requests~=2.31.0
+webdriver-manager~=4.0.1
+undetected-chromedriver @ git+https://github.com/boludoz/undetected-chromedriver.git@6c122b6117df59206445c7cfebe52d91a275886b
+# Change back to original library when merged:
+# https://github.com/ultrafunkamsterdam/undetected-chromedriver/pull/1339
+selenium-recaptcha-solver @ git+https://github.com/cubicbyte/selenium-recaptcha-solver.git@v1.9.1
+# We are using a fork of selenium-recaptcha-solver because the original package is archived
+
+coloredlogs==15.0.1
+
+setuptools~=69.0.3; python_version~='3.12'
+# Needed for undetected-chromedriver to work on python 3.12
+# https://github.com/ultrafunkamsterdam/undetected-chromedriver/issues/1674
+# TODO: remove when fixed
