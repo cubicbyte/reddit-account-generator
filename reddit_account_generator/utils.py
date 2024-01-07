@@ -116,7 +116,7 @@ def check_tor_running(ip: str, port: int) -> bool:
         return False
 
 
-def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True) -> uc.Chrome:
+def setup_chrome_driver(proxy: Optional[Proxy] = None, headless: bool = True) -> uc.Chrome:
     user_agent = UserAgent()
 
     logger.info('Installing Chrome driver...')
@@ -132,15 +132,13 @@ def setup_chrome_driver(proxy: Optional[Proxy] = None, hide_browser: bool = True
 
     logger.debug('Starting Chrome...')
     logger.debug('If it\'s stuck here, try to change HEADLESS to True in config.py file')
-    # TODO: change hide_browser to headless
 
     return uc.Chrome(
         options=options,
-        headless=hide_browser,
+        headless=headless,
         driver_executable_path=driver_executable_path,
         browser_executable_path=browser_executable_path,
-        no_sandbox=False,  # Partially fixes error below
-        # FIXME: this can causes chrome process to stay alive after script is finished
+        no_sandbox=False,  # Enabling this can cause chrome process to stay alive after script is finished
     )
 
 

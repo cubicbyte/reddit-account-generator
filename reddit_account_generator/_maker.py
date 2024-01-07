@@ -23,14 +23,14 @@ logger = logging.getLogger('reddit_account_generator')
 
 
 def create_account(email: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None,
-                   proxy: Optional[Proxy] = None, hide_browser: bool = True) -> Tuple[str, str, str]:
+                   proxy: Optional[Proxy] = None, headless: bool = True) -> Tuple[str, str, str]:
     """Create a Reddit account.
 
     :param email: Email address to use. If None, a random email will be generated.
     :param username: Username to use. If None, a random username will be generated.
     :param password: Password to use. If None, a random password will be generated.
     :param proxy: Proxy to use
-    :param hide_browser: Hide browser window
+    :param headless: Hide browser window?
     :return: Tuple of email, username and password
     """
 
@@ -38,7 +38,7 @@ def create_account(email: Optional[str] = None, username: Optional[str] = None, 
     driver = None
 
     try:  # try/except to quit driver if error occurs
-        driver = setup_chrome_driver(proxy, hide_browser)
+        driver = setup_chrome_driver(proxy, headless)
 
         if PAGE_LOAD_TIMEOUT_S is not None:
             driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_S)

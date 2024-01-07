@@ -95,7 +95,7 @@ try:
                 email, username, password = create_account(
                     email=EMAIL or None,
                     proxy=proxy,
-                    hide_browser=HIDE_BROWSER
+                    headless=HEADLESS
                 )
                 latest_account_created_timestamp = time.time()
                 break
