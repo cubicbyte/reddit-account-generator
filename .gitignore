@@ -7,3 +7,5 @@ accounts.csv
 /tor*/
 .venv/
 venv/
+
+.idea/
