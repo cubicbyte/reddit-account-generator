@@ -10,6 +10,7 @@ from selenium.common.exceptions import (
     WebDriverException,
     NoSuchElementException,
     ElementClickInterceptedException,
+    StaleElementReferenceException,
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -47,6 +48,20 @@ def select_second_continue_button(driver):
     shadow_root_script = 'return document.querySelector("body > shreddit-app > shreddit-overlay-display").shadowRoot.querySelector("shreddit-signup-drawer").shadowRoot.querySelector("shreddit-drawer > div > shreddit-async-loader > div > shreddit-slotter").shadowRoot.querySelector("#register > faceplate-tabpanel > auth-flow-modal:nth-child(2) > div.w-100 > faceplate-tracker > button")'
     continue_button = driver.execute_script(shadow_root_script)
     return continue_button
+
+
+def did_element_dissapear(driver, element_id, timeout=10):
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        try:
+            # Attempt to find and check the element's visibility
+            element = driver.find_element(By.ID, element_id)
+            if not element.is_displayed():
+                return True
+        except (NoSuchElementException, StaleElementReferenceException):
+            return False
+        # Sleep briefly to allow for DOM updates
+        time.sleep(0.5)
 
 
 def create_account(
@@ -169,7 +184,10 @@ def create_account(
         try_to_click(username_input, delay=MICRO_DELAY_S)
         time.sleep(MICRO_DELAY_S)
 
-        if "nice" not in username_err.text.lower().strip() and username_err.text.strip() != "":
+        if (
+            "nice" not in username_err.text.lower().strip()
+            and username_err.text.strip() != ""
+        ):
             if "taken" in username_err.text.lower():
                 raise UsernameTakenException(username_err.text)
             if "character" in username_err.text.lower():
@@ -211,29 +229,9 @@ def create_account(
         try_to_click(submit_btn, delay=MICRO_DELAY_S)
 
         # Check if submitted
-        time.sleep(MICRO_DELAY_S * 3)
-        skip_button = driver.execute_script("""
-        var overlay = document.querySelector('body > shreddit-app > shreddit-overlay-display');
-        if (!overlay || !overlay.shadowRoot) return null;
-
-        var signupDrawer = overlay.shadowRoot.querySelector('shreddit-signup-drawer');
-        if (!signupDrawer || !signupDrawer.shadowRoot) return null;
-
-        var drawerDiv = signupDrawer.shadowRoot.querySelector('shreddit-drawer > div > shreddit-async-loader > div > shreddit-slotter');
-        if (!drawerDiv || !drawerDiv.shadowRoot) return null;
-
-        var onboardingFlow = drawerDiv.shadowRoot.querySelector('span > shreddit-async-loader > onboarding-flow > shreddit-slotter');
-        if (!onboardingFlow || !onboardingFlow.shadowRoot) return null;
-
-        var genderSelection = onboardingFlow.shadowRoot.querySelector('span > shreddit-async-loader > faceplate-tracker > ob-gender-selection > auth-flow-modal > faceplate-tracker');
-        if (!genderSelection || !genderSelection.shadowRoot) return null;
-
-        var skipButton = genderSelection.shadowRoot.querySelector('button > span > span > span');
-        return skipButton;
-        """)
-
-        if skip_button is None:
-            raise Exception("Could not submit registration")
+        has_username_dissapeared = did_element_dissapear(driver, "register-username")
+        if not has_username_dissapeared:
+            raise Exception("Submit failed")
 
         # Account created!
 
